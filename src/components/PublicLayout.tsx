@@ -97,8 +97,8 @@ export default function PublicLayout() {
           <div>
             <div className="mb-3 font-semibold text-slate-300">关于</div>
             <div className="space-y-2">
-              <Link className="block hover:text-cyan-300" to="/feed">更新日志</Link>
-              <Link className="block hover:text-cyan-300" to="/submit">提交资源</Link>
+              <a className="block hover:text-cyan-300" href="/feed.xml" target="_blank" rel="noreferrer">更新日志 RSS</a>
+              <Link className="block hover:text-cyan-300" to="/admin">提交资源(后台)</Link>
               <Link className="block hover:text-cyan-300" to="/admin">管理后台</Link>
               <span className="block">© {new Date().getFullYear()} {brand}</span>
             </div>

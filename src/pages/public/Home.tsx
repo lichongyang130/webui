@@ -1,6 +1,6 @@
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Boxes, ChevronDown, Image as ImageIcon, Layers, Star, Trophy } from "lucide-react";
+import { ArrowRight, Boxes, ChevronDown, Download, Image as ImageIcon, Layers, Search, Sparkles, Star, Trophy } from "lucide-react";
 import { api } from "../../api";
 import { Asset, Section } from "../../types";
 import { iconMap } from "../Sections";
@@ -32,16 +32,32 @@ export default function Home() {
   const [daily, setDaily] = useState<any[]>([]);
   const [rank, setRank] = useState<any[]>([]);
   const [cov, setCov] = useState<any[]>([]);
+  const [cats, setCats] = useState<{ section: Section; categories: any[] }[]>([]);
+  const [latest, setLatest] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
+  const [colls, setColls] = useState<any[]>([]);
+  const [articles, setArticles] = useState<any[]>([]);
+  const [tokens, setTokens] = useState<any>(null);
   const [m, setM] = useState({ x: 0, y: 0 });
   const { t } = useT();
 
   useEffect(() => {
     api.get("/public/stats").then(setStats);
-    api.get<Section[]>("/public/sections").then(setSections);
+    api.get<Section[]>("/public/sections").then((secs) => {
+      setSections(secs);
+      Promise.all(
+        secs.map((s) => api.get<any>(`/public/sections/${s.slug}`).then((r) => ({ section: s, categories: r.categories })))
+      ).then(setCats);
+    });
     api.get<Asset[]>("/public/assets").then(setAssets);
     api.get("/public/daily").then(setDaily);
     api.get("/public/rank").then(setRank);
     api.get("/public/coverage").then(setCov);
+    api.get<any>("/public/items?sort=new").then((r) => setLatest(r.rows.slice(0, 12)));
+    api.get<any[]>("/public/tags").then(setTags);
+    api.get<any[]>("/public/collections").then(setColls);
+    api.get<any[]>("/public/articles").then(setArticles);
+    api.get("/public/tokens").then(setTokens);
   }, []);
 
   return (
@@ -238,6 +254,83 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ============ ④b 分类速览 ============ */}
+      <section className="mx-auto max-w-6xl px-4 pb-20">
+        <Reveal>
+          <h2 className="mb-8 text-2xl font-bold text-white">
+            {stats ? <CountUp to={stats.categories} /> : 0} 个二级分类,直达目标
+          </h2>
+        </Reveal>
+        <div className="space-y-4">
+          {cats.map(({ section, categories }, gi) => (
+            <Reveal key={section.slug} delay={gi * 80}>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="w-28 shrink-0 text-xs font-semibold md:w-36" style={{ color: section.color }}>
+                  {section.name}
+                </span>
+                {categories.map((c) => (
+                  <Link
+                    key={c.id}
+                    to={`/s/${section.slug}?cat=${c.slug}`}
+                    className="rounded-full border border-[#1e2534] bg-[#0b0e16] px-3 py-1 text-[11px] text-slate-400 transition hover:-translate-y-0.5"
+                    onMouseEnter={(e) => (e.currentTarget.style.color = section.color)}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "")}
+                  >
+                    {c.name}
+                  </Link>
+                ))}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ ④c 最新收录 ============ */}
+      <section className="border-y border-[#141a28] bg-[#07090f] py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-8 flex items-end justify-between">
+            <Reveal>
+              <h2 className="text-2xl font-bold text-white">最新收录</h2>
+              <p className="mt-1 text-xs text-slate-500">持续爬取官方目录,新组件第一时间入库</p>
+            </Reveal>
+            <Link to="/s/aceternity" className="text-xs text-cyan-400 hover:underline">
+              查看全部 →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {latest.map((it, i) => (
+              <Reveal key={it.id} delay={(i % 4) * 90}>
+                <Link to={`/i/${it.id}`} className="card card-hover group block overflow-hidden">
+                  {it.cover_image ? (
+                    <img
+                      src={it.cover_image}
+                      alt={it.name}
+                      loading="lazy"
+                      className="aspect-video w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
+                    />
+                  ) : (
+                    <div
+                      className="flex aspect-video w-full items-center justify-center text-2xl font-black opacity-60"
+                      style={{ background: `${it.section_color}14`, color: it.section_color }}
+                    >
+                      {it.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <div className="mb-1 flex justify-between text-[10px]">
+                      <span style={{ color: it.section_color }}>{it.section_name}</span>
+                      <span className="text-slate-600">{it.category_name}</span>
+                    </div>
+                    <div className="truncate text-sm font-medium text-slate-200">{it.name}</div>
+                    <div className="mt-0.5 line-clamp-2 h-8 text-[11px] leading-4 text-slate-500">{it.description}</div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ============ ⑤ 覆盖率带 ============ */}
       <section className="border-y border-[#141a28] bg-[#07090f] py-16">
         <div className="mx-auto max-w-6xl px-4">
@@ -249,6 +342,32 @@ export default function Home() {
             {cov.map((c, i) => (
               <Reveal key={c.slug} delay={i * 100}>
                 <CovBar name={c.name} c={c.c} official={c.official} pct={c.pct} />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ ⑤b 精选合集 ============ */}
+      <section className="py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <Reveal>
+            <h2 className="mb-2 text-2xl font-bold text-white">精选合集</h2>
+            <p className="mb-8 text-xs text-slate-500">编辑挑选的组合拳,一键进入同屏对比</p>
+          </Reveal>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {colls.map((c, i) => (
+              <Reveal key={c.id} delay={i * 90}>
+                <Link to="/compare" className="card card-hover group block p-5">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="font-semibold text-slate-200 transition group-hover:text-cyan-300">{c.name}</span>
+                    <span className="rounded-full bg-cyan-400/10 px-2 py-0.5 text-[10px] text-cyan-300">{c.n} 组件</span>
+                  </div>
+                  <p className="text-xs leading-5 text-slate-500">{c.description}</p>
+                  <div className="mt-4 flex items-center gap-1 text-[11px] text-slate-600 transition group-hover:text-cyan-400">
+                    同屏对比 <ArrowRight size={11} />
+                  </div>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -327,6 +446,108 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ============ ⑦b 标签云 + 动效百科 ============ */}
+      <section className="mx-auto max-w-6xl px-4 pb-20">
+        <div className="grid gap-5 md:grid-cols-2">
+          <Reveal>
+            <div className="glass h-full rounded-2xl p-6">
+              <h3 className="mb-1 text-sm font-semibold text-slate-200">热门标签</h3>
+              <p className="mb-4 text-[11px] text-slate-500">按使用频率排序,点击按标签筛选</p>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((g, i) => (
+                  <Link
+                    key={g.tag}
+                    to={`/s/aceternity?tag=${encodeURIComponent(g.tag)}`}
+                    className="rounded-lg border border-[#1e2534] bg-[#0b0e16] px-2.5 py-1 text-[11px] text-slate-400 transition hover:-translate-y-0.5 hover:border-cyan-400/40 hover:text-cyan-300"
+                    style={{ fontSize: `${Math.min(15, 11 + g.count / 6)}px` }}
+                  >
+                    {g.tag} <span className="text-slate-600">×{g.count}</span>
+                    {i < 3 && <i className="pulse-dot ml-1 inline-block h-1 w-1 rounded-full bg-cyan-400 align-middle" />}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+          <Reveal delay={120}>
+            <div className="glass h-full rounded-2xl p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+                  <Sparkles size={14} className="text-violet-400" /> 动效百科
+                </h3>
+                <Link to="/learn" className="text-[11px] text-cyan-400 hover:underline">
+                  全部文章 →
+                </Link>
+              </div>
+              <div className="space-y-2">
+                {articles.slice(0, 5).map((a) => (
+                  <Link key={a.id} to="/learn" className="block rounded-xl bg-[#0d1220] p-3 transition hover:bg-[#121828] hover:shadow-[0_0_24px_-8px_#8b5cf666]">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-violet-400/10 px-2 py-0.5 text-[9px] uppercase tracking-wider text-violet-300">{a.category}</span>
+                      <span className="truncate text-xs font-medium text-slate-200">{a.title}</span>
+                    </div>
+                    <div className="mt-1 line-clamp-1 text-[11px] text-slate-500">{a.body}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ ⑦c 设计 Tokens ============ */}
+      <section className="border-y border-[#141a28] bg-[#07090f] py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <Reveal>
+            <h2 className="mb-2 text-2xl font-bold text-white">设计语言 Tokens</h2>
+            <p className="mb-8 text-xs text-slate-500">全站统一的色彩 / 圆角 / 阴影 / 字体,点击色块即复制色值</p>
+          </Reveal>
+          {tokens && <TokensPanel tokens={tokens} />}
+        </div>
+      </section>
+
+      {/* ============ ⑦d 使用流程 ============ */}
+      <section className="py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <Reveal>
+            <h2 className="mb-10 text-center text-2xl font-bold text-white">四步拼出你的落地页</h2>
+          </Reveal>
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              { Icon: Search, c: "#22d3ee", n: "01", t: "搜索筛选", d: "177 条资源按版块 / 分类 / 标签 / 难度四维筛选,支持全文检索" },
+              { Icon: Star, c: "#8b5cf6", n: "02", t: "收藏对比", d: "加入收藏夹,同屏对比多个候选组件的效果与性能" },
+              { Icon: Boxes, c: "#f472b6", n: "03", t: "拼装向导", d: "Hero → 背景 → 文字 → 卡片,按配方组合成完整页面方案" },
+              { Icon: Download, c: "#f59e0b", n: "04", t: "导出清单", d: "一键导出组件清单与安装命令,配套设计图直接下载" },
+            ].map((s, i) => (
+              <Reveal key={s.n} delay={i * 110}>
+                <div className="card card-hover relative h-full p-5">
+                  <div className="mb-3 flex items-center justify-between">
+                    <s.Icon size={18} style={{ color: s.c }} />
+                    <span className="text-2xl font-black text-[#1e2534]">{s.n}</span>
+                  </div>
+                  <div className="mb-1 text-sm font-semibold text-slate-200">{s.t}</div>
+                  <p className="text-[11px] leading-5 text-slate-500">{s.d}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============ ⑦e FAQ ============ */}
+      <section className="mx-auto max-w-3xl px-4 pb-20">
+        <Reveal>
+          <h2 className="mb-8 text-center text-2xl font-bold text-white">常见问题</h2>
+        </Reveal>
+        <div className="space-y-2">
+          {articles
+            .filter((a) => a.category === "faq")
+            .slice(0, 5)
+            .map((a, i) => (
+              <Faq key={a.id} q={a.title} body={a.body} defaultOpen={i === 0} />
+            ))}
+        </div>
+      </section>
+
       {/* ============ ⑧ CTA ============ */}
       <section className="relative overflow-hidden border-t border-[#141a28] py-24">
         <div className="conic-spin pointer-events-none absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25 blur-3xl" style={{ background: "conic-gradient(#22d3ee, #8b5cf6, #f472b6, #22d3ee)" }} />
@@ -372,6 +593,96 @@ function CovBar({ name, c, official, pct }: { name: string; c: number; official:
         />
       </div>
       <div className="mt-1 text-right text-[10px] text-cyan-300">{pct}%</div>
+    </div>
+  );
+}
+
+function TokensPanel({ tokens }: { tokens: any }) {
+  const [copied, setCopied] = useState("");
+  const copy = (v: string) => {
+    navigator.clipboard?.writeText(v).then(() => {
+      setCopied(v);
+      setTimeout(() => setCopied(""), 1200);
+    });
+  };
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      <Reveal>
+        <div className="card h-full p-5">
+          <div className="mb-3 text-xs font-semibold text-slate-300">Colors</div>
+          <div className="grid grid-cols-4 gap-2">
+            {Object.entries(tokens.colors || {}).map(([k, v]: any) => (
+              <button
+                key={k}
+                onClick={() => copy(v)}
+                className="group flex flex-col items-center gap-1"
+                title={`点击复制 ${v}`}
+              >
+                <span
+                  className="h-10 w-full rounded-lg border border-[#1e2534] transition group-hover:scale-110"
+                  style={{ background: v, boxShadow: `0 0 18px -4px ${v}` }}
+                />
+                <span className="text-[9px] text-slate-500">{copied === v ? "✓ 已复制" : k}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+      <Reveal delay={100}>
+        <div className="card h-full p-5">
+          <div className="mb-3 text-xs font-semibold text-slate-300">Radius & Shadow</div>
+          <div className="mb-3 flex gap-3">
+            {Object.entries(tokens.radius || {}).map(([k, v]: any) => (
+              <div key={k} className="flex-1 text-center">
+                <div className="mx-auto h-12 w-full bg-gradient-to-br from-cyan-500/30 to-violet-500/30" style={{ borderRadius: v }} />
+                <div className="mt-1 text-[9px] text-slate-500">{k} {v}px</div>
+              </div>
+            ))}
+          </div>
+          <div
+            className="rounded-xl bg-[#0d1220] p-4 text-center text-[11px] text-slate-400"
+            style={{ boxShadow: tokens.shadows?.glow }}
+          >
+            {tokens.shadows?.glow}
+          </div>
+        </div>
+      </Reveal>
+      <Reveal delay={200}>
+        <div className="card h-full p-5">
+          <div className="mb-3 text-xs font-semibold text-slate-300">Typography</div>
+          <div className="space-y-3">
+            {Object.entries(tokens.fonts || {}).map(([k, v]: any) => (
+              <div key={k} className="rounded-lg bg-[#0d1220] p-3">
+                <div className="text-[9px] uppercase tracking-wider text-slate-600">{k}</div>
+                <div className="truncate text-xs text-slate-300">{String(v)}</div>
+              </div>
+            ))}
+            <div className="rounded-lg bg-[#0d1220] p-3 text-[11px] leading-5 text-slate-500">
+              深色霓虹基调 · 高对比文字 · 等宽数字用于数据带
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  );
+}
+
+function Faq({ q, body, defaultOpen = false }: { q: string; body: string; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="card overflow-hidden">
+      <button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-4 py-3 text-left text-xs font-medium text-slate-200">
+        {q}
+        <ChevronDown size={14} className={`shrink-0 text-slate-500 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <div
+        className="grid transition-all duration-300"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <p className="px-4 pb-3 text-[11px] leading-5 text-slate-500">{body}</p>
+        </div>
+      </div>
     </div>
   );
 }
