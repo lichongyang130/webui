@@ -1,7 +1,29 @@
+// token 三通道:内存 > localStorage > HttpOnly Cookie(浏览器自动携带,兜底)
 const TOKEN_KEY = "mui_token";
-export const getToken = () => localStorage.getItem(TOKEN_KEY);
-export const setToken = (t: string) => localStorage.setItem(TOKEN_KEY, t);
-export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
+let memToken = "";
+
+function safeGet(): string {
+  try {
+    return localStorage.getItem(TOKEN_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+export const getToken = () => memToken || safeGet();
+export const setToken = (t: string) => {
+  memToken = t;
+  try {
+    localStorage.setItem(TOKEN_KEY, t);
+  } catch {
+    /* 存储受限环境(如第三方 iframe)降级为内存+Cookie */
+  }
+};
+export const clearToken = () => {
+  memToken = "";
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {}
+};
 
 async function req<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
@@ -10,7 +32,11 @@ async function req<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   };
   const token = getToken();
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`/api${path}`, { ...opts, headers });
+  const res = await fetch(`/api${path}`, {
+    ...opts,
+    headers,
+    credentials: "same-origin", // 带上会话 Cookie 兜底
+  });
   if (res.status === 401) {
     clearToken();
     if (!location.pathname.startsWith("/admin/login")) location.href = "/admin/login";

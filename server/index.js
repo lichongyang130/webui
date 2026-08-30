@@ -9,15 +9,33 @@ initDb();
 const app = express();
 app.use(express.json({ limit: "8mb" }));
 
+// 请求日志(便于排查鉴权问题)
+app.use("/api", (req, res, next) => {
+  const t = Date.now();
+  res.on("finish", () =>
+    console.log(`[api] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - t}ms)`)
+  );
+  next();
+});
+
 const DESIGN = process.env.DESIGN_DIR || path.join(__dirname, "..", "design");
 const DIST = path.join(__dirname, "..", "dist");
 const PORT = process.env.PORT || 3001;
 
 // ---------- auth ----------
+function readToken(req) {
+  const header = (req.headers.authorization || "").replace("Bearer ", "");
+  if (header) return header;
+  const cookie = (req.headers.cookie || "")
+    .split(";")
+    .map((s) => s.trim())
+    .find((s) => s.startsWith("mui_token="));
+  return cookie ? decodeURIComponent(cookie.split("=")[1]) : "";
+}
 function auth(req, res, next) {
   if (req.method === "POST" && req.path === "/auth/login") return next();
   if (req.path.startsWith("/public/")) return next(); // 前台只读接口免鉴权
-  const token = (req.headers.authorization || "").replace("Bearer ", "");
+  const token = readToken(req);
   const s = db
     .prepare("SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')")
     .get(token);
@@ -37,11 +55,17 @@ app.post("/api/auth/login", (req, res) => {
     token,
     user.id
   );
+  // 双通道:HttpOnly Cookie(浏览器自动携带,防 JS 存储受限)+ JSON token(供 curl/第三方)
+  res.setHeader(
+    "Set-Cookie",
+    `mui_token=${token}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=604800`
+  );
   res.json({ token, username: user.username });
 });
 app.post("/api/auth/logout", (req, res) => {
-  const token = (req.headers.authorization || "").replace("Bearer ", "");
+  const token = readToken(req);
   db.prepare("DELETE FROM sessions WHERE token = ?").run(token);
+  res.setHeader("Set-Cookie", "mui_token=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0");
   res.json({ ok: true });
 });
 app.get("/api/me", (req, res) => {
