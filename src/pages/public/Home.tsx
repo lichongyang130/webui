@@ -8,6 +8,9 @@ import { useT } from "../../i18n";
 import {
   CountUp, FlipWords, Marquee, ParticleField, Reveal, Scramble, Tilt, TypeTerminal,
 } from "../../fx";
+import { allDemos as demos } from "../../demos";
+
+const FEATURED = ["background-beams", "flip-words", "3d-card-effect", "meteors", "animated-tabs", "draggable-card"];
 
 const TECH = ["React 18", "Tailwind v4", "Framer Motion", "WebGL", "Canvas 2D", "SVG Paths", "FLIP Layout", "Shaders", "TypeScript", "Vite", "Express", "SQLite"];
 
@@ -545,6 +548,40 @@ export default function Home() {
             .map((a, i) => (
               <Faq key={a.id} q={a.title} body={a.body} defaultOpen={i === 0} />
             ))}
+        </div>
+      </section>
+
+      {/* ============ ⑦f Live 演示精选 ============ */}
+      <section className="border-t border-[#141a28] bg-[#07090f] py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-8 flex items-end justify-between">
+            <Reveal>
+              <h2 className="text-2xl font-bold text-white">Live 演示精选</h2>
+              <p className="mt-1 text-xs text-slate-500">不是截图 —— 每个格子都是本站原生实现的真实运行组件,直接上手玩</p>
+            </Reveal>
+            <Link to="/demos" className="text-xs text-cyan-400 hover:underline">
+              全部 {demos.length} 个演示 →
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURED.map((slug, i) => {
+              const d = demos.find((x) => x.slug === slug);
+              if (!d) return null;
+              return (
+                <Reveal key={slug} delay={i * 90}>
+                  <Link to="/demos" className="card group block overflow-hidden p-0">
+                    <div className="relative h-40">
+                      <d.comp />
+                    </div>
+                    <div className="flex items-center justify-between border-t border-[#141a28] px-3 py-2">
+                      <span className="text-xs font-medium text-slate-200">{d.name}</span>
+                      <span className="text-[10px] text-emerald-400 opacity-0 transition group-hover:opacity-100">● 运行中</span>
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
       </section>
 

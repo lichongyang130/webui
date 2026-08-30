@@ -17,6 +17,7 @@ import ItemDetail from "./pages/public/ItemDetail";
 import Learn from "./pages/public/Learn";
 import Wizard from "./pages/public/Wizard";
 import Compare from "./pages/public/Compare";
+import Demos from "./pages/public/Demos";
 
 function AdminGuard() {
   return getToken() ? <Layout /> : <Navigate to="/admin/login" replace />;
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/s/:slug" element={<SectionPage />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/demos" element={<Demos />} />
         <Route path="/i/:id" element={<ItemDetail />} />
         <Route path="/learn" element={<Learn />} />
         <Route path="/wizard" element={<Wizard />} />

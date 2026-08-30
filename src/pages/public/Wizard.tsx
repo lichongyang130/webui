@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Wand2, Copy } from "lucide-react";
 import { api } from "../../api";
 import { Item } from "../../types";
+import { demoByName } from "../../demos";
 
 const steps = [
   ["backgrounds", "① 背景"],
@@ -65,12 +66,21 @@ export default function Wizard() {
             </button>
           </div>
           <ol className="space-y-2 text-sm">
-            {chosen.map((c) => (
-              <li key={c.id} className="flex items-center justify-between rounded-lg bg-[#0d1220] px-3 py-2">
-                <span className="text-slate-200">{c.name} <span className="text-xs text-slate-500">{(c as any).alias}</span></span>
-                <a className="text-xs text-cyan-400" href={c.url} target="_blank" rel="noreferrer">原站 ↗</a>
-              </li>
-            ))}
+            {chosen.map((c) => {
+              const d = demoByName(c.name);
+              return (
+                <li key={c.id} className="flex items-center gap-3 rounded-lg bg-[#0d1220] px-3 py-2">
+                  {d && (
+                    <span className="relative h-12 w-20 shrink-0 overflow-hidden rounded border border-[#1e2534]">
+                      <d.comp />
+                    </span>
+                  )}
+                  <span className="flex-1 text-slate-200">{c.name} <span className="text-xs text-slate-500">{(c as any).alias}</span></span>
+                  {d && <span className="text-[10px] text-emerald-400">LIVE</span>}
+                  <a className="text-xs text-cyan-400" href={c.url} target="_blank" rel="noreferrer">原站 ↗</a>
+                </li>
+              );
+            })}
           </ol>
           {covers.length > 0 && (
             <>

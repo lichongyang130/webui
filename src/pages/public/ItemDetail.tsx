@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { api } from "../../api";
 import { parseTags } from "../../types";
+import { getDemo } from "../../demos";
 
 const perfColor: Record<string, string> = { low: "#34d399", med: "#f59e0b", high: "#f87171" };
 
@@ -72,6 +73,7 @@ export default function ItemDetail() {
   };
 
   const demoSlug = (it.url || "").match(/components\/([\w-]+)/)?.[1];
+  const liveDemo = getDemo(demoSlug);
 
   const relGroups: Record<string, string> = {
     duplicate: "跨库重复收录",
@@ -124,8 +126,23 @@ export default function ItemDetail() {
       <div className="grid grid-cols-3 gap-4">
         {/* left: meta */}
         <div className="col-span-2 space-y-4">
-          {it.cover_image && (
-            <img src={it.cover_image} className="card aspect-video w-full object-cover" alt={it.name} />
+          {liveDemo ? (
+            <div className="card overflow-hidden p-0">
+              <div className="flex items-center justify-between border-b border-[#141a28] px-4 py-2">
+                <span className="flex items-center gap-2 text-xs font-semibold text-cyan-300">
+                  <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  LIVE 演示 · 本站原生实现,可直接交互
+                </span>
+                <button className="text-[11px] text-slate-400 hover:text-cyan-300" onClick={() => setDemo(true)}>
+                  全屏查看 ⤢
+                </button>
+              </div>
+              <div className="relative h-72">
+                <liveDemo.comp />
+              </div>
+            </div>
+          ) : (
+            it.cover_image && <img src={it.cover_image} className="card aspect-video w-full object-cover" alt={it.name} />
           )}
           <div className="card p-5">
             <p className="text-sm leading-6 text-slate-300">{it.description}</p>
@@ -270,11 +287,17 @@ export default function ItemDetail() {
         </div>
       </div>
 
-      {/* #41 live demo iframe */}
+      {/* #41 live demo:优先本站原生演示,无实现时回退官方 iframe */}
       {demo && demoSlug && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6" onClick={() => setDemo(false)}>
-          <div className="h-[80vh] w-full max-w-5xl overflow-hidden rounded-xl border border-[#1e2534] bg-white" onClick={(e) => e.stopPropagation()}>
-            <iframe title="demo" src={`https://ui.aceternity.com/live-preview/${demoSlug}`} className="h-full w-full" />
+          <div className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-[#1e2534]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[#141a28] bg-[#07090f] px-4 py-2">
+              <span className="text-xs font-semibold text-cyan-300">{liveDemo ? `${it.name} · 原生实时演示` : `${it.name} · 官方演示`}</span>
+              <button className="text-xs text-slate-400 hover:text-white" onClick={() => setDemo(false)}>✕ 关闭</button>
+            </div>
+            <div className="relative flex-1">
+              {liveDemo ? <liveDemo.comp /> : <iframe title="demo" src={`https://ui.aceternity.com/live-preview/${demoSlug}`} className="h-full w-full bg-white" />}
+            </div>
           </div>
         </div>
       )}

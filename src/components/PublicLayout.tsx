@@ -26,6 +26,7 @@ export default function PublicLayout() {
   const nav = [
     { to: "/", label: t("home") },
     { to: "/gallery", label: t("gallery") },
+    { to: "/demos", label: "演示墙" },
     { to: "/learn", label: t("learn") },
     { to: "/compare", label: t("compare") },
     { to: "/wizard", label: t("wizard") },
@@ -89,6 +90,7 @@ export default function PublicLayout() {
             <div className="mb-3 font-semibold text-slate-300">探索</div>
             <div className="space-y-2">
               <Link className="block hover:text-cyan-300" to="/gallery">设计画廊</Link>
+              <Link className="block hover:text-cyan-300" to="/demos">在线演示墙</Link>
               <Link className="block hover:text-cyan-300" to="/wizard">拼装向导</Link>
               <Link className="block hover:text-cyan-300" to="/compare">同屏对比</Link>
               <Link className="block hover:text-cyan-300" to="/learn">动效百科</Link>
