@@ -2,6 +2,7 @@ import * as B from "./backgrounds";
 import * as T from "./text";
 import * as C from "./cards";
 import * as U from "./ui";
+import * as X from "./extra";
 
 export type DemoMeta = { name: string; group: "backgrounds" | "text" | "cards" | "ui"; comp: () => JSX.Element };
 
@@ -85,6 +86,21 @@ const reg: Record<string, DemoMeta> = {
   "sticky-scroll-reveal": { name: "Sticky Scroll Reveal", group: "ui", comp: U.StickyScrollReveal },
   "parallax-scroll": { name: "Parallax Scroll", group: "ui", comp: U.ParallaxScroll },
   "tailwindcss-buttons": { name: "Tailwind Buttons", group: "ui", comp: U.TailwindButtons },
+
+  lens: { name: "Lens", group: "ui", comp: X.Lens },
+  "3d-pin": { name: "3D Pin", group: "ui", comp: X.ThreeDPin },
+  "world-map": { name: "World Map", group: "backgrounds", comp: X.WorldMap },
+  "github-globe": { name: "GitHub Globe", group: "backgrounds", comp: X.GithubGlobe },
+  "3d-globe": { name: "3D Globe", group: "backgrounds", comp: X.GithubGlobe },
+  "ascii-art": { name: "ASCII Art", group: "text", comp: X.AsciiArt },
+  "chromatic-image": { name: "Chromatic Image", group: "text", comp: X.ChromaticImage },
+  "svg-mask-effect": { name: "SVG Mask Effect", group: "text", comp: X.SvgMaskEffect },
+  scales: { name: "Scales", group: "backgrounds", comp: X.Scales },
+  "dither-shader": { name: "Dither Shader", group: "backgrounds", comp: X.DitherShader },
+  notch: { name: "Notch", group: "ui", comp: X.Notch },
+  "images-badge": { name: "Images Badge", group: "ui", comp: X.ImagesBadge },
+  "resizable-navbar": { name: "Resizable Navbar", group: "ui", comp: X.ResizableNavbar },
+  sidebar: { name: "Sidebar", group: "ui", comp: X.SidebarDemo },
 };
 
 /** 别名:不同 slug 指向同一实现 */
@@ -95,13 +111,11 @@ const alias: Record<string, string> = {
   "card-hover-effect": "wobble-card",
   "text-reveal-card": "canvas-reveal-effect",
   "text-reveal": "hero-highlight",
-  "images-badge": "focus-cards",
   "hero-parallax": "parallax-scroll",
   "macbook-scroll": "sticky-scroll-reveal",
   "container-scroll-animation": "sticky-scroll-reveal",
   "navbar-menu": "floating-navbar",
   "sticky-banner": "floating-navbar",
-  "3d-pin": "three-d",
   "canvas-text": "sparkles",
   "webcam-pixel-grid": "pixelated-canvas",
 };

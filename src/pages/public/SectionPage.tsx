@@ -5,6 +5,7 @@ import { api } from "../../api";
 import { Category, Item, Section, parseTags } from "../../types";
 import { iconMap } from "../Sections";
 import { Empty, Pager } from "../../components/ui";
+import LiveThumb from "../../components/LiveThumb";
 
 export default function SectionPage() {
   const { slug } = useParams();
@@ -175,16 +176,18 @@ export default function SectionPage() {
               className="card card-hover group flex cursor-pointer flex-col overflow-hidden"
               onClick={() => navigate(`/i/${it.id}`)}
             >
-              {it.cover_image ? (
-                <img src={it.cover_image} alt={it.name} className="aspect-video w-full object-cover" />
-              ) : (
-                <div
-                  className="grid-bg flex aspect-video w-full items-center justify-center"
-                  style={{ background: `linear-gradient(135deg, ${section.color}18, transparent 70%)` }}
-                >
-                  <Icon size={30} style={{ color: section.color + "88" }} />
-                </div>
-              )}
+              <LiveThumb
+                name={it.name}
+                cover={it.cover_image}
+                fallback={
+                  <div
+                    className="grid-bg flex aspect-video w-full items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${section.color}18, transparent 70%)` }}
+                  >
+                    <Icon size={30} style={{ color: section.color + "88" }} />
+                  </div>
+                }
+              />
               <div className="flex-1 p-4">
                 <div className="mb-1 flex items-start justify-between gap-2">
                   <span className="font-semibold text-slate-100">{it.name}</span>

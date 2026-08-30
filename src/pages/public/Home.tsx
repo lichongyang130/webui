@@ -9,6 +9,7 @@ import {
   CountUp, FlipWords, Marquee, ParticleField, Reveal, Scramble, Tilt, TypeTerminal,
 } from "../../fx";
 import { allDemos as demos } from "../../demos";
+import LiveThumb from "../../components/LiveThumb";
 
 const FEATURED = ["background-beams", "flip-words", "3d-card-effect", "meteors", "animated-tabs", "draggable-card"];
 
@@ -304,21 +305,14 @@ export default function Home() {
             {latest.map((it, i) => (
               <Reveal key={it.id} delay={(i % 4) * 90}>
                 <Link to={`/i/${it.id}`} className="card card-hover group block overflow-hidden">
-                  {it.cover_image ? (
-                    <img
-                      src={it.cover_image}
-                      alt={it.name}
-                      loading="lazy"
-                      className="aspect-video w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
-                    />
-                  ) : (
+                  <LiveThumb name={it.name} cover={it.cover_image} fallback={
                     <div
                       className="flex aspect-video w-full items-center justify-center text-2xl font-black opacity-60"
                       style={{ background: `${it.section_color}14`, color: it.section_color }}
                     >
                       {it.name.slice(0, 2).toUpperCase()}
                     </div>
-                  )}
+                  } />
                   <div className="p-3">
                     <div className="mb-1 flex justify-between text-[10px]">
                       <span style={{ color: it.section_color }}>{it.section_name}</span>
