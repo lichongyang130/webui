@@ -118,6 +118,19 @@ const alias: Record<string, string> = {
   "sticky-banner": "floating-navbar",
   "canvas-text": "sparkles",
   "webcam-pixel-grid": "pixelated-canvas",
+  // 官方 slug 与旧注册键的差异
+  tabs: "animated-tabs",
+  loader: "loaders",
+  // 官方命名变体(demoByName 用)
+  "meteor-effect": "meteors",
+  "vortex-background": "vortex",
+  "lamp-section-header": "lamp-effect",
+  "3d-animated-pin": "3d-pin",
+  "hover-effect": "card-hover-effect",
+  "tailwind-css-buttons": "tailwindcss-buttons",
+  "parallax-grid-scroll": "parallax-scroll",
+  "fey-com-macbook-scroll": "macbook-scroll",
+  "glowing-background-stars-card": "glowing-stars-effect",
 };
 
 export function getDemo(slug?: string | null): DemoMeta | null {

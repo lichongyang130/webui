@@ -189,7 +189,7 @@ function attach(app, { db }) {
 
   // ---------- 覆盖率(#60) ----------
   pub("/coverage", (req, res) => {
-    const official = { aceternity: 126, motionsites: 65, reactbits: 170, uiverse: 4456, animejs: 16 };
+    const official = { aceternity: 146, motionsites: 65, reactbits: 170, uiverse: 4456, animejs: 16 };
     const rows = db
       .prepare(`SELECT s.slug, s.name, COUNT(i.id) c FROM sections s LEFT JOIN items i ON i.section_id=s.id GROUP BY s.id`)
       .all();
