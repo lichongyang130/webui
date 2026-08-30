@@ -5,11 +5,11 @@ import { Item } from "../../types";
 import { demoByName } from "../../demos";
 
 const steps = [
-  ["backgrounds", "① 背景"],
-  ["text", "② 文字特效"],
-  ["cards", "③ 卡片"],
-  ["interaction", "④ 交互/导航"],
-  ["blocks", "⑤ 区块"],
+  ["background", "① 背景效果"],
+  ["text", "② 文字动效"],
+  ["card", "③ 卡片组件"],
+  ["hover", "④ 悬停交互"],
+  ["blocks", "⑤ 区块合集"],
 ] as const;
 
 export default function Wizard() {

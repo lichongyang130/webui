@@ -160,6 +160,9 @@ const TEMPLATES = [
 
 const sec = db.prepare("SELECT id FROM sections WHERE slug='aceternity'").get();
 const cats = Object.fromEntries(db.prepare("SELECT slug,id FROM categories WHERE section_id=?").all(sec.id).map(r => [r.slug, r.id]));
+// 粗分类 → 中文细分分类兜底(分类体系已按官方 /categories 重构,见 scripts/recat-aceternity.mjs)
+const CAT_FALLBACK = { backgrounds: "background", cards: "card", text: "text", interaction: "hover", blocks: "blocks", templates: "templates" };
+const catOf = (c) => cats[c] ?? cats[CAT_FALLBACK[c]] ?? cats.background;
 
 const official = [
   ...COMPONENTS.map(([slug, name, desc, cat]) => ({ slug, name, desc, cat, url: `https://ui.aceternity.com/components/${slug}` })),
@@ -187,8 +190,8 @@ official.forEach((o, i) => {
   const tags = JSON.stringify([o.cat, kind === "components" ? "aceternity" : kind]);
   const pop = Math.max(5, 100 - i);
   const id = byKey.get(key);
-  if (id) { up.run(o.name, o.desc, o.url, cats[o.cat], now, id); keep.add(id); upd++; }
-  else { const r = inm.run(sec.id, cats[o.cat], o.name, o.url, o.desc, tags, pop, now, now); keep.add(Number(r.lastInsertRowid)); ins++; }
+  if (id) { up.run(o.name, o.desc, o.url, catOf(o.cat), now, id); keep.add(id); upd++; }
+  else { const r = inm.run(sec.id, catOf(o.cat), o.name, o.url, o.desc, tags, pop, now, now); keep.add(Number(r.lastInsertRowid)); ins++; }
 });
 
 // 删除官方清单之外的旧条目(用户要求:清掉不对的内容)
