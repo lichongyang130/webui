@@ -13,7 +13,7 @@ async function req<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch(`/api${path}`, { ...opts, headers });
   if (res.status === 401) {
     clearToken();
-    if (!location.pathname.startsWith("/login")) location.href = "/login";
+    if (!location.pathname.startsWith("/admin/login")) location.href = "/admin/login";
     throw new Error("未登录");
   }
   const data = await res.json().catch(() => ({}));

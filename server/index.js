@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3001;
 // ---------- auth ----------
 function auth(req, res, next) {
   if (req.method === "POST" && req.path === "/auth/login") return next();
+  if (req.path.startsWith("/public/")) return next(); // 前台只读接口免鉴权
   const token = (req.headers.authorization || "").replace("Bearer ", "");
   const s = db
     .prepare("SELECT * FROM sessions WHERE token = ? AND expires_at > datetime('now')")
@@ -349,6 +350,80 @@ app.put("/api/password", (req, res) => {
   if ((new_password || "").length < 6) return res.status(400).json({ error: "新密码至少 6 位" });
   db.prepare("UPDATE users SET password_hash=? WHERE id=?").run(hashPassword(new_password), u.id);
   res.json({ ok: true });
+});
+
+// ---------- public(前台只读) ----------
+app.get("/api/public/stats", (req, res) => {
+  const one = (sql) => db.prepare(sql).get().c;
+  res.json({
+    sections: one("SELECT COUNT(*) c FROM sections WHERE enabled=1"),
+    categories: one("SELECT COUNT(*) c FROM categories"),
+    items: one("SELECT COUNT(*) c FROM items WHERE status='published'"),
+    assets: one("SELECT COUNT(*) c FROM assets"),
+  });
+});
+app.get("/api/public/sections", (req, res) => {
+  res.json(
+    db
+      .prepare(
+        `SELECT s.*,
+          (SELECT COUNT(*) FROM categories c WHERE c.section_id=s.id) category_count,
+          (SELECT COUNT(*) FROM items i WHERE i.section_id=s.id AND i.status='published') item_count
+         FROM sections s WHERE s.enabled=1 ORDER BY s.sort`
+      )
+      .all()
+  );
+});
+app.get("/api/public/sections/:slug", (req, res) => {
+  const section = db
+    .prepare("SELECT * FROM sections WHERE slug=? AND enabled=1")
+    .get(req.params.slug);
+  if (!section) return res.status(404).json({ error: "版块不存在" });
+  const categories = db
+    .prepare("SELECT * FROM categories WHERE section_id=? ORDER BY sort")
+    .all(section.id);
+  res.json({ section, categories });
+});
+app.get("/api/public/items", (req, res) => {
+  const { section_slug, category_slug, q, tag } = req.query;
+  const page = Math.max(1, parseInt(req.query.page || "1"));
+  const pageSize = 24;
+  const where = ["i.status='published'", "s.enabled=1"];
+  const params = [];
+  if (section_slug) (where.push("s.slug=?"), params.push(section_slug));
+  if (category_slug) (where.push("c.slug=?"), params.push(category_slug));
+  if (q) (where.push("(i.name LIKE ? OR i.description LIKE ?)"), params.push(`%${q}%`, `%${q}%`));
+  if (tag) (where.push("i.tags LIKE ?"), params.push(`%"${tag}"%`));
+  const w = "WHERE " + where.join(" AND ");
+  const total = db.prepare(`SELECT COUNT(*) c FROM items i JOIN sections s ON s.id=i.section_id JOIN categories c ON c.id=i.category_id ${w}`).get(...params).c;
+  const rows = db
+    .prepare(
+      `SELECT i.*, s.name section_name, s.color section_color, s.slug section_slug, s.icon section_icon, c.name category_name, c.slug category_slug
+       FROM items i JOIN sections s ON s.id=i.section_id JOIN categories c ON c.id=i.category_id
+       ${w} ORDER BY i.starred DESC, i.id DESC LIMIT ? OFFSET ?`
+    )
+    .all(...params, pageSize, (page - 1) * pageSize);
+  res.json({ rows, total, page, page_size: pageSize });
+});
+app.get("/api/public/tags", (req, res) => {
+  const rows = db.prepare("SELECT tags FROM items WHERE status='published'").all();
+  const count = {};
+  for (const r of rows) for (const t of JSON.parse(r.tags || "[]")) count[t] = (count[t] || 0) + 1;
+  res.json(
+    Object.entries(count)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
+      .map(([tag, c]) => ({ tag, count: c }))
+  );
+});
+app.get("/api/public/assets", (req, res) => {
+  res.json(
+    db
+      .prepare(
+        `SELECT a.*, i.name linked_item_name FROM assets a LEFT JOIN items i ON i.id=a.linked_item_id ORDER BY a.path`
+      )
+      .all()
+  );
 });
 
 // ---------- static ----------

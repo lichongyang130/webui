@@ -117,7 +117,7 @@ export default function Sections() {
                 </span>
               </div>
               <div className="flex gap-2">
-                <button className="btn flex-1 justify-center" onClick={() => navigate(`/sections/${s.id}`)}>
+                <button className="btn flex-1 justify-center" onClick={() => navigate(`/admin/sections/${s.id}`)}>
                   管理分类
                 </button>
                 <button

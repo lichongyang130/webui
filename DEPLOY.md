@@ -26,7 +26,10 @@ cp deploy/nginx.conf.sample /etc/nginx/conf.d/webui-admin.conf
 nginx -t && nginx -s reload
 ```
 
-访问 `http://你的IP:3001`(或 nginx 域名),默认账号:
+访问 `http://你的IP:3001`(或 nginx 域名):
+
+- `/` 前台展示站(免登录):首页 / 版块页 / 设计画廊,只读接口 `/api/public/*`
+- `/admin` 后台管理,默认账号:
 
 - 用户名:`admin`
 - 密码:`admin123`  ← **登录后立即在「系统设置」修改**

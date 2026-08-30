@@ -11,11 +11,11 @@ import {
 import { api, clearToken, getToken } from "../api";
 
 const nav = [
-  { to: "/", icon: LayoutDashboard, label: "仪表盘" },
-  { to: "/sections", icon: Boxes, label: "版块 / 分类" },
-  { to: "/resources", icon: Database, label: "资源条目" },
-  { to: "/assets", icon: ImageIcon, label: "设计资产库" },
-  { to: "/settings", icon: Settings, label: "系统设置" },
+  { to: "/admin", icon: LayoutDashboard, label: "仪表盘" },
+  { to: "/admin/sections", icon: Boxes, label: "版块 / 分类" },
+  { to: "/admin/resources", icon: Database, label: "资源条目" },
+  { to: "/admin/assets", icon: ImageIcon, label: "设计资产库" },
+  { to: "/admin/settings", icon: Settings, label: "系统设置" },
 ];
 
 export default function Layout() {
@@ -25,7 +25,7 @@ export default function Layout() {
       await api.post("/auth/logout");
     } catch {}
     clearToken();
-    navigate("/login");
+    navigate("/admin/login");
   };
   return (
     <div className="flex h-full">
@@ -42,7 +42,7 @@ export default function Layout() {
             <NavLink
               key={n.to}
               to={n.to}
-              end={n.to === "/"}
+              end={n.to === "/admin"}
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition ${
                   isActive

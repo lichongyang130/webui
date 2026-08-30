@@ -84,7 +84,7 @@ export default function Dashboard() {
       <div className="card p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-200">最新资源</h3>
-          <Link className="text-xs text-cyan-400 hover:underline" to="/resources">
+          <Link className="text-xs text-cyan-400 hover:underline" to="/admin/resources">
             查看全部 →
           </Link>
         </div>

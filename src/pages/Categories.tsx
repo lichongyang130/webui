@@ -38,7 +38,7 @@ export default function Categories() {
     <div>
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/sections" className="btn !p-2">
+          <Link to="/admin/sections" className="btn !p-2">
             <ArrowLeft size={15} />
           </Link>
           <div>

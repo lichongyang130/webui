@@ -8,7 +8,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const navigate = useNavigate();
-  if (getToken()) return <Navigate to="/" replace />;
+  if (getToken()) return <Navigate to="/admin" replace />;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ export default function Login() {
     try {
       const r = await api.post("/auth/login", { username, password });
       setToken(r.token);
-      navigate("/");
+      navigate("/admin");
     } catch (e: any) {
       setErr(e.message);
     }
