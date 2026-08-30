@@ -68,12 +68,14 @@ export default function PublicLayout() {
       <div className="flex-1">
         <Outlet />
       </div>
-      <footer className="border-t border-[#1e2534] py-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 text-xs text-slate-600">
+      <footer className="border-t border-[#141a28] bg-[#07090f] py-10">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 text-xs text-slate-500 md:grid-cols-4">
           <div>
-            <div className="mb-2 flex items-center gap-2">
+            <Link to="/" className="neon-text mb-2 inline-block text-base font-bold">⚡ {brand}</Link>
+            <p className="mb-3 max-w-xs leading-5">{t("sub")}</p>
+            <div className="flex items-center gap-2">
               <input
-                className="input !w-56 !py-1.5"
+                className="input !w-44 !py-1.5"
                 placeholder={`${t("subscribe")} · ${t("email")}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -82,13 +84,33 @@ export default function PublicLayout() {
                 {subMsg || "订阅"}
               </button>
             </div>
-            Motion UI 资源库 · {t("foot")}
           </div>
-          <div className="flex gap-4">
-            <a className="hover:text-cyan-400" href="https://discord.gg/ftZbQvCdN7" target="_blank" rel="noreferrer">Discord</a>
-            <a className="hover:text-cyan-400" href="https://x.com/aceternitylabs" target="_blank" rel="noreferrer">Twitter</a>
-            <a className="hover:text-cyan-400" href="https://github.com/DavidHDev/react-bits" target="_blank" rel="noreferrer">GitHub</a>
-            <a className="hover:text-cyan-400" href="/feed.xml" target="_blank">RSS</a>
+          <div>
+            <div className="mb-3 font-semibold text-slate-300">探索</div>
+            <div className="space-y-2">
+              <Link className="block hover:text-cyan-300" to="/gallery">设计画廊</Link>
+              <Link className="block hover:text-cyan-300" to="/wizard">拼装向导</Link>
+              <Link className="block hover:text-cyan-300" to="/compare">同屏对比</Link>
+              <Link className="block hover:text-cyan-300" to="/learn">动效百科</Link>
+            </div>
+          </div>
+          <div>
+            <div className="mb-3 font-semibold text-slate-300">关于</div>
+            <div className="space-y-2">
+              <Link className="block hover:text-cyan-300" to="/feed">更新日志</Link>
+              <Link className="block hover:text-cyan-300" to="/submit">提交资源</Link>
+              <Link className="block hover:text-cyan-300" to="/admin">管理后台</Link>
+              <span className="block">© {new Date().getFullYear()} {brand}</span>
+            </div>
+          </div>
+          <div>
+            <div className="mb-3 font-semibold text-slate-300">社区</div>
+            <div className="flex flex-col gap-2">
+              <a className="hover:text-cyan-400" href="https://discord.gg/ftZbQvCdN7" target="_blank" rel="noreferrer">Discord</a>
+              <a className="hover:text-cyan-400" href="https://x.com/aceternitylabs" target="_blank" rel="noreferrer">Twitter</a>
+              <a className="hover:text-cyan-400" href="https://github.com/DavidHDev/react-bits" target="_blank" rel="noreferrer">GitHub</a>
+              <a className="hover:text-cyan-400" href="/feed.xml" target="_blank" rel="noreferrer">RSS</a>
+            </div>
           </div>
         </div>
       </footer>
