@@ -87,6 +87,12 @@ function initDb() {
 
   const sectionCount = db.prepare("SELECT COUNT(*) c FROM sections").get().c;
   if (sectionCount === 0) seed();
+
+  // v2:元数据列 + 社区/运营/学习表 + FTS5,以及全量目录种子(幂等)
+  require("./schema2").migrate(db);
+  const s2 = require("./seed2");
+  s2.seed2(db);
+  s2.dedupe(db);
 }
 
 function seed() {

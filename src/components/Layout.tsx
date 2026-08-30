@@ -15,6 +15,7 @@ const nav = [
   { to: "/admin/sections", icon: Boxes, label: "版块 / 分类" },
   { to: "/admin/resources", icon: Database, label: "资源条目" },
   { to: "/admin/assets", icon: ImageIcon, label: "设计资产库" },
+  { to: "/admin/ops", icon: Boxes, label: "运营中心" },
   { to: "/admin/settings", icon: Settings, label: "系统设置" },
 ];
 

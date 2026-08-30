@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Boxes, ExternalLink, Search, Star } from "lucide-react";
 import { api } from "../../api";
 import { Category, Item, Section, parseTags } from "../../types";
@@ -12,8 +12,32 @@ export default function SectionPage() {
   const [tags, setTags] = useState<{ tag: string; count: number }[]>([]);
   const [fCat, setFCat] = useState("");
   const [fTag, setFTag] = useState("");
+  const [fDiff, setFDiff] = useState("");
+  const [fPerf, setFPerf] = useState("");
+  const [fAccess, setFAccess] = useState("");
+  const [sort, setSort] = useState("hot");
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
+  const [sp, setSp] = useSearchParams();
+  // #48 筛选条件 URL 化:初始化 + 同步
+  const [urlInit] = useState(() => ({
+    cat: sp.get("cat") || "",
+    tag: sp.get("tag") || "",
+    q: sp.get("q") || "",
+  }));
+  useEffect(() => {
+    setFCat(urlInit.cat);
+    setFTag(urlInit.tag);
+    setQ(urlInit.q);
+  }, [urlInit]);
+  useEffect(() => {
+    const n = new URLSearchParams();
+    if (fCat) n.set("cat", fCat);
+    if (fTag) n.set("tag", fTag);
+    if (q) n.set("q", q);
+    setSp(n, { replace: true });
+  }, [fCat, fTag, q]);
   const [data, setData] = useState<{ rows: Item[]; total: number }>({ rows: [], total: 0 });
 
   useEffect(() => {
@@ -30,10 +54,14 @@ export default function SectionPage() {
     p.set("section_slug", slug || "");
     if (fCat) p.set("category_slug", fCat);
     if (fTag) p.set("tag", fTag);
-    if (q) p.set("q", q);
+    if (fDiff) p.set("difficulty", fDiff);
+    if (fPerf) p.set("perf", fPerf);
+    if (fAccess) p.set("access", fAccess);
+    if (q) (p.set("q", q), p.set("fts", "1"));
+    p.set("sort", sort);
     p.set("page", String(page));
     api.get(`/public/items?${p}`).then(setData);
-  }, [slug, fCat, fTag, q, page]);
+  }, [slug, fCat, fTag, fDiff, fPerf, fAccess, q, sort, page]);
 
   if (meta === null) return <div className="p-10 text-slate-500">加载中…</div>;
   if (!meta) return <Empty text="版块不存在" />;
@@ -103,7 +131,7 @@ export default function SectionPage() {
             <Search size={13} className="absolute left-3 top-2.5 text-slate-500" />
             <input
               className="input !w-44 !pl-8"
-              placeholder="搜索资源…"
+              placeholder="全文搜索…"
               value={q}
               onChange={(e) => {
                 setQ(e.target.value);
@@ -111,6 +139,28 @@ export default function SectionPage() {
               }}
             />
           </div>
+        </div>
+        <div className="flex w-full flex-wrap gap-2 border-t border-[#141a28] pt-3">
+          <select className="select !w-28" value={fDiff} onChange={(e) => { setFDiff(e.target.value); setPage(1); }}>
+            <option value="">难度:全部</option>
+            {[1, 2, 3, 4, 5].map((d) => <option key={d} value={d}>★{d}</option>)}
+          </select>
+          <select className="select !w-28" value={fPerf} onChange={(e) => { setFPerf(e.target.value); setPage(1); }}>
+            <option value="">性能:全部</option>
+            <option value="low">低成本</option>
+            <option value="med">中等</option>
+            <option value="high">高成本</option>
+          </select>
+          <select className="select !w-28" value={fAccess} onChange={(e) => { setFAccess(e.target.value); setPage(1); }}>
+            <option value="">类型:全部</option>
+            <option value="free">免费</option>
+            <option value="pro">Pro</option>
+            <option value="coming">预告</option>
+          </select>
+          <select className="select !w-28" value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }}>
+            <option value="hot">最热</option>
+            <option value="new">最新</option>
+          </select>
         </div>
       </div>
 
@@ -120,7 +170,11 @@ export default function SectionPage() {
       ) : (
         <div className="grid grid-cols-4 gap-4">
           {data.rows.map((it) => (
-            <div key={it.id} className="card card-hover group flex flex-col overflow-hidden">
+            <div
+              key={it.id}
+              className="card card-hover group flex cursor-pointer flex-col overflow-hidden"
+              onClick={() => navigate(`/i/${it.id}`)}
+            >
               {it.cover_image ? (
                 <img src={it.cover_image} alt={it.name} className="aspect-video w-full object-cover" />
               ) : (
@@ -147,7 +201,13 @@ export default function SectionPage() {
               </div>
               <div className="flex items-center justify-between border-t border-[#141a28] px-4 py-2 text-[11px]">
                 <span style={{ color: section.color }}>{it.category_name}</span>
-                <a className="text-slate-500 hover:text-cyan-400" href={it.url} target="_blank" rel="noreferrer">
+                <a
+                  className="text-slate-500 hover:text-cyan-400"
+                  href={it.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   原站 <ExternalLink size={11} className="inline" />
                 </a>
               </div>

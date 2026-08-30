@@ -88,6 +88,9 @@ export default function Assets() {
             <Field label="所属界面分组">
               <input className="input" value={edit.screen || ""} onChange={(e) => setEdit({ ...edit, screen: e.target.value })} />
             </Field>
+            <Field label="生成 Prompt(#28)">
+              <textarea className="textarea" rows={3} value={(edit as any).prompt || ""} onChange={(e) => setEdit({ ...edit, prompt: e.target.value } as any)} />
+            </Field>
             <Field label="关联资源条目">
               <select
                 className="select"

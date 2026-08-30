@@ -39,6 +39,26 @@ export interface Item {
   section_color?: string;
   section_slug?: string;
   category_name?: string;
+  alias?: string;
+  principle?: string;
+  perf_cost?: string;
+  deps?: string;
+  difficulty?: number;
+  popularity?: number;
+  inspiration?: string;
+  mobile_friendly?: number;
+  access_level?: string;
+  variant_count?: number;
+  migrated_to?: string;
+  snippet?: string;
+  props?: string;
+  pitfalls?: string;
+  perf_note?: string;
+  a11y_note?: string;
+  principle_note?: string;
+  exercise?: string;
+  video_url?: string;
+  faq?: string;
 }
 export interface Asset {
   id: number;

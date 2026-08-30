@@ -275,6 +275,40 @@ export default function Resources() {
             <Field label="技术栈">
               <input className="input" placeholder="React / CSS / Tailwind…" value={edit.tech} onChange={(e) => setEdit({ ...edit, tech: e.target.value })} />
             </Field>
+            <Field label="中文别名">
+              <input className="input" value={edit.alias || ""} onChange={(e) => setEdit({ ...edit, alias: e.target.value })} />
+            </Field>
+            <Field label="视觉原理">
+              <select className="select" value={edit.principle || "css"} onChange={(e) => setEdit({ ...edit, principle: e.target.value })}>
+                {["css", "motion", "svg-path", "svg-filter", "canvas", "webgl", "js"].map((p) => <option key={p}>{p}</option>)}
+              </select>
+            </Field>
+            <Field label="性能成本">
+              <select className="select" value={edit.perf_cost || "low"} onChange={(e) => setEdit({ ...edit, perf_cost: e.target.value })}>
+                <option value="low">低</option><option value="med">中</option><option value="high">高</option>
+              </select>
+            </Field>
+            <Field label="难度(1-5)">
+              <input className="input" type="number" min={1} max={5} value={edit.difficulty ?? 2} onChange={(e) => setEdit({ ...edit, difficulty: +e.target.value })} />
+            </Field>
+            <Field label="流行度">
+              <input className="input" type="number" value={edit.popularity ?? 50} onChange={(e) => setEdit({ ...edit, popularity: +e.target.value })} />
+            </Field>
+            <Field label="灵感来源">
+              <input className="input" placeholder="linear.app / x.ai…" value={edit.inspiration || ""} onChange={(e) => setEdit({ ...edit, inspiration: e.target.value })} />
+            </Field>
+            <Field label="访问级别">
+              <select className="select" value={edit.access_level || "free"} onChange={(e) => setEdit({ ...edit, access_level: e.target.value })}>
+                <option value="free">free</option><option value="pro">pro</option><option value="coming">coming</option>
+              </select>
+            </Field>
+            <label className="mb-3 flex items-center gap-2 text-xs text-slate-400">
+              <input type="checkbox" checked={!!edit.mobile_friendly} onChange={(e) => setEdit({ ...edit, mobile_friendly: e.target.checked ? 1 : 0 })} />
+              移动端适配
+            </label>
+            <Field label="踩坑/FAQ/备注(合并展示)">
+              <textarea className="textarea" rows={2} value={edit.pitfalls || ""} onChange={(e) => setEdit({ ...edit, pitfalls: e.target.value })} />
+            </Field>
             <Field label="状态">
               <select className="select" value={edit.status} onChange={(e) => setEdit({ ...edit, status: e.target.value })}>
                 <option value="pending">待整理</option>

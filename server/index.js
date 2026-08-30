@@ -41,6 +41,15 @@ function auth(req, res, next) {
     .get(token);
   if (!s) return res.status(401).json({ error: "未登录或登录已过期" });
   req.userId = s.user_id;
+  // #56 操作日志:记录后台写操作
+  if (["POST", "PUT", "DELETE"].includes(req.method)) {
+    const actor = db.prepare("SELECT username FROM users WHERE id=?").get(req.userId)?.username || "admin";
+    res.on("finish", () => {
+      try {
+        db.prepare("INSERT INTO ops_log (actor,action) VALUES (?,?)").run(actor, `${req.method} ${req.path}`);
+      } catch {}
+    });
+  }
   next();
 }
 app.use("/api", auth);
@@ -60,6 +69,9 @@ app.post("/api/auth/login", (req, res) => {
     "Set-Cookie",
     `mui_token=${token}; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=604800`
   );
+  try {
+    db.prepare("INSERT INTO ops_log (actor,action) VALUES (?,?)").run(user.username, "POST /auth/login");
+  } catch {}
   res.json({ token, username: user.username });
 });
 app.post("/api/auth/logout", (req, res) => {
@@ -409,22 +421,29 @@ app.get("/api/public/sections/:slug", (req, res) => {
   res.json({ section, categories });
 });
 app.get("/api/public/items", (req, res) => {
-  const { section_slug, category_slug, q, tag } = req.query;
+  const { section_slug, category_slug, q, tag, difficulty, perf, access, fts } = req.query;
   const page = Math.max(1, parseInt(req.query.page || "1"));
   const pageSize = 24;
   const where = ["i.status='published'", "s.enabled=1"];
   const params = [];
   if (section_slug) (where.push("s.slug=?"), params.push(section_slug));
   if (category_slug) (where.push("c.slug=?"), params.push(category_slug));
-  if (q) (where.push("(i.name LIKE ? OR i.description LIKE ?)"), params.push(`%${q}%`, `%${q}%`));
+  if (q) {
+    if (fts) (where.push("i.id IN (SELECT rowid FROM items_fts WHERE items_fts MATCH ?)"), params.push(`"${q.replace(/"/g, "")}"`));
+    else (where.push("(i.name LIKE ? OR i.description LIKE ? OR i.alias LIKE ?)"), params.push(`%${q}%`, `%${q}%`, `%${q}%`));
+  }
   if (tag) (where.push("i.tags LIKE ?"), params.push(`%"${tag}"%`));
+  if (difficulty) (where.push("i.difficulty=?"), params.push(+difficulty));
+  if (perf) (where.push("i.perf_cost=?"), params.push(perf));
+  if (access) (where.push("i.access_level=?"), params.push(access));
+  const sort = req.query.sort === "new" ? "i.id DESC" : "i.starred DESC, i.popularity DESC";
   const w = "WHERE " + where.join(" AND ");
   const total = db.prepare(`SELECT COUNT(*) c FROM items i JOIN sections s ON s.id=i.section_id JOIN categories c ON c.id=i.category_id ${w}`).get(...params).c;
   const rows = db
     .prepare(
       `SELECT i.*, s.name section_name, s.color section_color, s.slug section_slug, s.icon section_icon, c.name category_name, c.slug category_slug
        FROM items i JOIN sections s ON s.id=i.section_id JOIN categories c ON c.id=i.category_id
-       ${w} ORDER BY i.starred DESC, i.id DESC LIMIT ? OFFSET ?`
+       ${w} ORDER BY ${sort} LIMIT ? OFFSET ?`
     )
     .all(...params, pageSize, (page - 1) * pageSize);
   res.json({ rows, total, page, page_size: pageSize });
@@ -449,6 +468,9 @@ app.get("/api/public/assets", (req, res) => {
       .all()
   );
 });
+
+// ---------- v2 路由(社区/运营/学习/SEO/RSS/widget/CSV) ----------
+require("./routes2").attach(app, { db });
 
 // ---------- static ----------
 app.use("/design", express.static(DESIGN));

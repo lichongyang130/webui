@@ -7,8 +7,10 @@ import { StatusBadge } from "../components/ui";
 
 export default function Dashboard() {
   const [s, setS] = useState<Stats | null>(null);
+  const [cov, setCov] = useState<any[]>([]);
   useEffect(() => {
     api.get<Stats>("/stats").then(setS).catch(() => {});
+    api.get("/public/coverage").then(setCov).catch(() => {});
   }, []);
   if (!s) return <div className="text-slate-500">加载中…</div>;
 
@@ -37,6 +39,25 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {cov.length > 0 && (
+        <div className="card mb-6 p-5">
+          <h3 className="mb-4 text-sm font-semibold text-slate-200">目录覆盖率(已入库 / 官方总量)</h3>
+          <div className="grid grid-cols-5 gap-4">
+            {cov.map((c) => (
+              <div key={c.slug}>
+                <div className="mb-1 flex justify-between text-xs">
+                  <span className="text-slate-400">{c.name}</span>
+                  <span className="text-slate-500">{c.c}/{c.official || "?"}</span>
+                </div>
+                <div className="h-2 rounded-full bg-[#141a28]">
+                  <div className="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500" style={{ width: `${c.pct}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-2 gap-4">
         <div className="card p-5">

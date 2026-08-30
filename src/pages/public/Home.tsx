@@ -4,6 +4,8 @@ import { ArrowRight, Boxes, Image as ImageIcon, Layers, Star } from "lucide-reac
 import { api } from "../../api";
 import { Asset, Section } from "../../types";
 import { iconMap } from "../Sections";
+import { useT } from "../../i18n";
+import { Trophy } from "lucide-react";
 
 function Beams() {
   const beams = [
@@ -35,10 +37,17 @@ export default function Home() {
   const [stats, setStats] = useState<any>(null);
   const [sections, setSections] = useState<Section[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
+  const [daily, setDaily] = useState<any[]>([]);
+  const [cols, setCols] = useState<any[]>([]);
+  const [rank, setRank] = useState<any[]>([]);
+  const { t } = useT();
   useEffect(() => {
     api.get("/public/stats").then(setStats);
     api.get<Section[]>("/public/sections").then(setSections);
     api.get<Asset[]>("/public/assets").then(setAssets);
+    api.get("/public/daily").then(setDaily);
+    api.get("/public/collections").then(setCols);
+    api.get("/public/rank").then(setRank);
   }, []);
 
   const statCards = stats
@@ -60,15 +69,12 @@ export default function Home() {
             5 大动效资源版块 · 一站收录
           </span>
           <h1 className="text-4xl font-extrabold leading-tight text-white md:text-5xl">
-            把全网最好的
-            <span className="neon-text"> 动效 UI </span>
+            {t("hero1")}
+            <span className="neon-text">{t("hero2")}</span>
             <br />
-            收进一个库
+            {t("hero3")}
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-slate-400">
-            Aceternity、MotionSites、React Bits、Uiverse、Anime.js —— 组件、提示词、元素与动画引擎,
-            按真实二级分类整理,附 25 张深色霓虹界面设计图。
-          </p>
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-slate-400">{t("sub")}</p>
           <div className="mt-8 flex justify-center gap-3">
             <a href="#sections" className="btn btn-primary">
               浏览版块 <ArrowRight size={14} />
@@ -120,6 +126,55 @@ export default function Home() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* daily / collections / rank */}
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="card p-5">
+            <h3 className="mb-3 text-sm font-semibold text-slate-200">{t("daily")}</h3>
+            <div className="space-y-2">
+              {daily.map((d) => (
+                <Link key={d.id} to={`/i/${d.id}`} className="block rounded-lg bg-[#0d1220] p-2.5 text-xs hover:bg-[#121828]">
+                  <span className="font-medium text-slate-200">{d.name}</span>
+                  <span className="ml-2" style={{ color: d.section_color }}>{d.section_slug}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="card p-5">
+            <h3 className="mb-3 text-sm font-semibold text-slate-200">{t("collections")}</h3>
+            <div className="space-y-2">
+              {cols.map((c) => (
+                <div key={c.id} className="rounded-lg bg-[#0d1220] p-2.5 text-xs">
+                  <div className="font-medium text-slate-200">{c.name} <span className="text-slate-500">({c.n})</span></div>
+                  <div className="mt-0.5 text-slate-500">{c.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card p-5">
+            <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+              <Trophy size={13} className="text-amber-400" /> {t("rank")}
+            </h3>
+            <ol className="space-y-1.5 text-xs">
+              {rank.map((r, i) => (
+                <li key={r.id}>
+                  <Link to={`/i/${r.id}`} className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-[#0d1220]">
+                    <span className="w-4 text-slate-600">{i + 1}</span>
+                    <span className="flex-1 truncate text-slate-300">{r.name}</span>
+                    {r.rc > 0 && (
+                      <span className="flex items-center gap-0.5 text-amber-400">
+                        <Star size={10} className="fill-amber-400" /> {Math.round(r.avg * 10) / 10}
+                      </span>
+                    )}
+                    <span style={{ color: r.section_color }}>{r.popularity}</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
       </section>
 

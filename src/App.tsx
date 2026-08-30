@@ -9,9 +9,14 @@ import Categories from "./pages/Categories";
 import Resources from "./pages/Resources";
 import Assets from "./pages/Assets";
 import Settings from "./pages/Settings";
+import Ops from "./pages/Ops";
 import Home from "./pages/public/Home";
 import SectionPage from "./pages/public/SectionPage";
 import Gallery from "./pages/public/Gallery";
+import ItemDetail from "./pages/public/ItemDetail";
+import Learn from "./pages/public/Learn";
+import Wizard from "./pages/public/Wizard";
+import Compare from "./pages/public/Compare";
 
 function AdminGuard() {
   return getToken() ? <Layout /> : <Navigate to="/admin/login" replace />;
@@ -25,6 +30,10 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/s/:slug" element={<SectionPage />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/i/:id" element={<ItemDetail />} />
+        <Route path="/learn" element={<Learn />} />
+        <Route path="/wizard" element={<Wizard />} />
+        <Route path="/compare" element={<Compare />} />
       </Route>
 
       {/* 后台管理 */}
@@ -35,6 +44,7 @@ export default function App() {
         <Route path="sections/:id" element={<Categories />} />
         <Route path="resources" element={<Resources />} />
         <Route path="assets" element={<Assets />} />
+        <Route path="ops" element={<Ops />} />
         <Route path="settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
