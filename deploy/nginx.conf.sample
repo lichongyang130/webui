@@ -1,0 +1,15 @@
+# 放到 /etc/nginx/conf.d/webui-admin.conf 后 nginx -t && nginx -s reload
+server {
+    listen 80;
+    server_name admin.your-domain.com;   # 改成你的域名或 IP
+
+    client_max_body_size 20m;
+
+    location / {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "webui-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "动效 UI 资源库后台管理系统 - 5 大版块(Aceternity/MotionSites/ReactBits/Uiverse/Anime.js)资源管理",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "preview": "npm run build && npm run start"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "lucide-react": "^0.462.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
