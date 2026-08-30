@@ -459,6 +459,35 @@ app.get("/api/public/tags", (req, res) => {
       .map(([tag, c]) => ({ tag, count: c }))
   );
 });
+// 自动生成产品效果图(SVG):保证每个条目都有封面
+app.get("/api/public/cover/:id.svg", (req, res) => {
+  const it = db
+    .prepare(
+      `SELECT i.id, i.name, i.description, s.color, s.name sec, c.name cat
+       FROM items i JOIN sections s ON s.id=i.section_id JOIN categories c ON c.id=i.category_id WHERE i.id=?`
+    )
+    .get(req.params.id);
+  if (!it) return res.status(404).end();
+  const esc = (s) => String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
+  const h = (it.id * 2654435761) % 1000;
+  const gx = 20 + (h % 60), gy = 15 + ((h * 7) % 55), rot = (h % 40) - 20;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+<defs>
+<radialGradient id="g" cx="${gx}%" cy="${gy}%" r="75%"><stop offset="0" stop-color="${it.color}" stop-opacity="0.5"/><stop offset="1" stop-color="#05060a" stop-opacity="0"/></radialGradient>
+<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${it.color}" stop-opacity="0.9"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0.9"/></linearGradient>
+</defs>
+<rect width="640" height="360" fill="#05060a"/>
+<g stroke="#1e2534" stroke-width="1" opacity="0.7">${Array.from({ length: 11 }, (_, i) => `<line x1="${i * 64}" y1="0" x2="${i * 64}" y2="360"/>`).join("")}${Array.from({ length: 7 }, (_, i) => `<line x1="0" y1="${i * 60}" x2="640" y2="${i * 60}"/>`).join("")}</g>
+<rect width="640" height="360" fill="url(#g)"/>
+<g transform="rotate(${rot} 520 90)" opacity="0.8"><circle cx="520" cy="90" r="46" fill="none" stroke="url(#b)" stroke-width="2"/><circle cx="520" cy="90" r="30" fill="none" stroke="${it.color}" stroke-width="1" opacity="0.6"/><circle cx="520" cy="90" r="4" fill="${it.color}"/></g>
+<text x="40" y="300" font-family="Arial Black, Arial" font-size="150" font-weight="900" fill="${it.color}" opacity="0.12">${esc(it.name.slice(0, 1).toUpperCase())}</text>
+<text x="40" y="196" font-family="Arial, PingFang SC, sans-serif" font-size="34" font-weight="700" fill="#e2e8f0">${esc(it.name.slice(0, 26))}</text>
+<text x="40" y="232" font-family="Arial, PingFang SC, sans-serif" font-size="15" fill="#94a3b8">${esc((it.description || it.cat || "").slice(0, 40))}</text>
+<g><rect x="40" y="46" width="${16 + esc(it.cat).length * 13}" height="26" rx="13" fill="${it.color}" fill-opacity="0.15" stroke="${it.color}" stroke-opacity="0.5"/><text x="${52}" y="64" font-family="Arial, PingFang SC, sans-serif" font-size="13" fill="${it.color}">${esc(it.cat)}</text></g>
+<text x="40" y="330" font-family="Arial, PingFang SC, sans-serif" font-size="12" fill="#475569">${esc(it.sec)} · Motion UI 资源库</text>
+</svg>`;
+  res.type("image/svg+xml").set("Cache-Control", "public, max-age=86400").send(svg);
+});
 app.get("/api/public/assets", (req, res) => {
   res.json(
     db

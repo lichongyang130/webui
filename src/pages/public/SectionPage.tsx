@@ -177,6 +177,7 @@ export default function SectionPage() {
               onClick={() => navigate(`/i/${it.id}`)}
             >
               <LiveThumb
+                id={it.id}
                 name={it.name}
                 cover={it.cover_image}
                 fallback={

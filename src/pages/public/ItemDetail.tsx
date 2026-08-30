@@ -126,7 +126,7 @@ export default function ItemDetail() {
       <div className="grid grid-cols-3 gap-4">
         {/* left: meta */}
         <div className="col-span-2 space-y-4">
-          {liveDemo ? (
+          {liveDemo && (
             <div className="card overflow-hidden p-0">
               <div className="flex items-center justify-between border-b border-[#141a28] px-4 py-2">
                 <span className="flex items-center gap-2 text-xs font-semibold text-cyan-300">
@@ -141,9 +141,12 @@ export default function ItemDetail() {
                 <liveDemo.comp />
               </div>
             </div>
-          ) : (
-            it.cover_image && <img src={it.cover_image} className="card aspect-video w-full object-cover" alt={it.name} />
           )}
+          <img
+            src={it.cover_image || `/api/public/cover/${it.id}.svg`}
+            className="card aspect-video w-full object-cover"
+            alt={`${it.name} 效果图`}
+          />
           <div className="card p-5">
             <p className="text-sm leading-6 text-slate-300">{it.description}</p>
             <div className="mt-4 flex flex-wrap gap-1.5">
