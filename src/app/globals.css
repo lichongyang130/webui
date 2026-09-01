@@ -93,6 +93,10 @@ pre.codeblock {
   tab-size: 2;
 }
 
+.fx-bgbase {
+  background: #070711;
+}
+
 /* subtle grid backdrop for public pages */
 .bg-grid {
   background-image: linear-gradient(rgba(var(--c1), 0.06) 1px, transparent 1px),
@@ -334,6 +338,23 @@ pre.codeblock {
   to {
     filter: hue-rotate(360deg);
   }
+}
+
+/* Light theme — idea #401/#403. Chrome inverts; previews (iframes) and
+   imagery double-invert back to their authored colors. */
+html[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="light"] body {
+  filter: invert(0.92) hue-rotate(180deg);
+  background: #e8e8f6;
+}
+/* keep previews, media and shaders authored as-is (double invert) */
+html[data-theme="light"] iframe,
+html[data-theme="light"] video,
+html[data-theme="light"] img,
+html[data-theme="light"] canvas.fx-noinvert {
+  filter: invert(1) hue-rotate(180deg);
 }
 
 /* reduced motion: respect user preference everywhere */

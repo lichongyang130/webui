@@ -281,8 +281,8 @@ export default function Background() {
   const bg = settings.bg;
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
-      {/* base */}
-      <div className="absolute inset-0 bg-[#070711]" />
+      {/* base (inverts with the light theme filter) */}
+      <div className="fx-bgbase absolute inset-0" />
       {bg === "aurora" && <Aurora />}
       {bg === "stars" && <Stars />}
       {bg === "matrix" && <Matrix />}

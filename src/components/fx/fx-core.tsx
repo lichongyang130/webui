@@ -14,6 +14,7 @@ import React, {
 
 export type Accent = "violet" | "cyber" | "sunset" | "forest" | "gold";
 export type BgStyle = "aurora" | "grid" | "dots" | "stars" | "matrix" | "minimal";
+export type Theme = "dark" | "light";
 
 export interface FxSettings {
   cursor: boolean;
@@ -25,6 +26,7 @@ export interface FxSettings {
   accent: Accent;
   bg: BgStyle;
   neon: number; // 0..1 glow intensity
+  theme: Theme;
 }
 
 const DEFAULTS: FxSettings = {
@@ -37,6 +39,7 @@ const DEFAULTS: FxSettings = {
   accent: "violet",
   bg: "aurora",
   neon: 0.85,
+  theme: "dark",
 };
 
 const KEY = "mv_fx";
@@ -285,6 +288,7 @@ export function FxProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty("--neon", String(settings.neon));
     root.dataset.bg = settings.bg;
     root.dataset.accent = settings.accent;
+    root.dataset.theme = settings.theme;
   }, [settings, mounted]);
 
   const reduced = settings.reduced || systemReduced;

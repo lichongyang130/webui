@@ -81,6 +81,17 @@ export default function FxMenu({ lang }: { lang: "en" | "zh" }) {
             ))}
           </div>
 
+          <button
+            type="button"
+            onClick={() => set({ theme: settings.theme === "light" ? "dark" : "light" })}
+            className="mt-3 flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs text-white/75 transition hover:bg-white/5"
+          >
+            {settings.theme === "light" ? "☀️ " + (zh ? "浅色模式（开）" : "Light mode (on)") : "🌙 " + (zh ? "浅色模式（关）" : "Light mode (off)")}
+            <span className={`relative h-4.5 w-8 rounded-full transition ${settings.theme === "light" ? "bg-amber-400/80" : "bg-white/15"}`} style={{ height: 18, width: 32 }}>
+              <span className="absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white transition-all" style={{ left: settings.theme === "light" ? 16 : 2, height: 14, width: 14 }} />
+            </span>
+          </button>
+
           <div className="mb-1.5 mt-3 px-1 text-[11px] font-bold uppercase tracking-widest text-white/40">
             {zh ? "背景" : "Background"}
           </div>
