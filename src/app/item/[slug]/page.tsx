@@ -9,6 +9,7 @@ import { CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
 import { getItemBySlug, getRelated, incrementViews } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import DetailClient, { DetailActions } from "./DetailClient";
+import { ShareBar } from "@/components/fx/ShareVote";
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -61,6 +62,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <DetailActions item={item} lang={lang} />
               <FavButton slug={item.slug} lang={lang} className="!h-[46px] !w-[46px]" />
+              <ShareBar title={item.title} lang={lang} />
             </div>
           </div>
 
