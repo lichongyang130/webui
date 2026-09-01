@@ -7,7 +7,7 @@ import { getLang, t } from "@/lib/i18n";
 export default async function ExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; tech?: string }>;
 }) {
   const lang = await getLang();
   return (
@@ -34,10 +34,10 @@ async function ExploreBrowser({
   searchParams,
   lang,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; tech?: string }>;
   lang: "en" | "zh";
 }) {
-  const { q = "", tag = "" } = await searchParams;
+  const { q = "", tag = "", tech = "" } = await searchParams;
   const items = getItems({ q });
   const counts = new Map<string, number>();
   for (const it of getItems()) for (const tg of it.tags) counts.set(tg, (counts.get(tg) ?? 0) + 1);
@@ -58,7 +58,7 @@ async function ExploreBrowser({
           </a>
         ))}
       </div>
-      <VaultBrowser items={items} initialQuery={q} initialTag={tag} lang={lang} />
+      <VaultBrowser items={items} initialQuery={q} initialTag={tag} initialTech={tech} lang={lang} />
     </div>
   );
 }

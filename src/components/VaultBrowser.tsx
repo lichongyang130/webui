@@ -13,18 +13,20 @@ export default function VaultBrowser({
   activeCategory,
   initialQuery = "",
   initialTag = "",
+  initialTech = "",
   lang = "en",
 }: {
   items: Item[];
   activeCategory?: CategorySlug;
   initialQuery?: string;
   initialTag?: string;
+  initialTech?: string;
   lang?: Lang;
 }) {
   const zh = lang === "zh";
   const [q, setQ] = useState(initialQuery);
   const [sort, setSort] = useState<string>("popular");
-  const [tech, setTech] = useState<string>("");
+  const [tech, setTech] = useState<string>(initialTech);
   const [activeTag, setActiveTag] = useState(initialTag);
   const [view, setView] = useState<"grid" | "list">("grid");
   const gridRef = useRef<HTMLDivElement>(null);
@@ -40,8 +42,10 @@ export default function VaultBrowser({
     const url = new URL(window.location.href);
     if (activeTag) url.searchParams.set("tag", activeTag);
     else url.searchParams.delete("tag");
+    if (tech) url.searchParams.set("tech", tech);
+    else url.searchParams.delete("tech");
     window.history.replaceState(null, "", url.toString());
-  }, [activeTag]);
+  }, [activeTag, tech]);
 
   const allTags = useMemo(() => {
     const m = new Map<string, number>();

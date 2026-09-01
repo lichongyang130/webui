@@ -16,10 +16,10 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ category: string }>;
-  searchParams: Promise<{ tag?: string }>;
+  searchParams: Promise<{ tag?: string; tech?: string }>;
 }) {
   const { category } = await params;
-  const { tag = "" } = await searchParams;
+  const { tag = "", tech = "" } = await searchParams;
   const lang = await getLang();
   const zh = lang === "zh";
   const cat = CATEGORY_MAP[category];
@@ -60,7 +60,7 @@ export default async function CategoryPage({
           </div>
         </header>
 
-        <VaultBrowser items={items} activeCategory={cat.slug} initialTag={tag} lang={lang} />
+        <VaultBrowser items={items} activeCategory={cat.slug} initialTag={tag} initialTech={tech} lang={lang} />
       </main>
       <SiteFooter />
     </div>
