@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Item, CategorySlug } from "@/lib/types";
 import { CATEGORIES, CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
 import ItemCard from "./ItemCard";
@@ -27,6 +27,7 @@ export default function VaultBrowser({
   const [tech, setTech] = useState<string>("");
   const [activeTag, setActiveTag] = useState(initialTag);
   const [view, setView] = useState<"grid" | "list">("grid");
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const SORTS = [
     { key: "popular", label: zh ? "最多浏览" : "Most viewed" },
@@ -69,6 +70,24 @@ export default function VaultBrowser({
     };
     return list.sort(sorters[sort]);
   }, [items, q, sort, tech, activeTag]);
+
+  // Arrow-key navigation across card grid — idea #218
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      const moves: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4 };
+      if (!(e.key in moves) || view !== "grid") return;
+      const links = Array.from(el.querySelectorAll<HTMLElement>("a[href^='/item/']"));
+      const idx = links.indexOf(document.activeElement as HTMLElement);
+      if (idx === -1) return;
+      e.preventDefault();
+      const nextIdx = Math.max(0, Math.min(links.length - 1, idx + moves[e.key]));
+      links[nextIdx].focus();
+    };
+    el.addEventListener("keydown", onKey);
+    return () => el.removeEventListener("keydown", onKey);
+  }, [view, filtered.length]);
 
   return (
     <div>
@@ -208,6 +227,7 @@ export default function VaultBrowser({
         </div>
       ) : (
         <div
+          ref={gridRef}
           key={`${q}|${sort}|${tech}|${activeTag}|${view}`}
           className={
             view === "grid"

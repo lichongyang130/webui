@@ -139,3 +139,29 @@ Web3 DeFi 深色看板落地页 (#311) · 打字代码窗口多 Tab (#197) · �
 #39 粒子文字 · #80 横向滚动展厅 · #87 滚动故事长页 · #327 LLM 实时生成预览 ·
 #340 vanilla↔React 代码互转 · #351 GitHub 登录 · #376 审核看板拖拽 · #378 CodeMirror 编辑器 ·
 #437 Service Worker 离线 · #451 iframe 视口外暂停 · #460 SQLite · #471 NextAuth
+
+---
+
+## Wave 14–20（2026-09-01）
+
+| 编号 | 落地内容 |
+|---|---|
+| ✅ #39 | 粒子文字 Hero（ParticleText：canvas 采样文字像素，弹簧归位 + 光标 80px 驱散） |
+| ✅ #97 | 滚动绘线 SVG（ScrollDraw：IntersectionObserver 触发 stroke-dashoffset 描绘动画） |
+| ✅ #226/#234 | View Transitions（next.config viewTransition + ::view-transition 模糊滑动关键帧） |
+| ✅ #127/#147 | 全屏大字菜单（FullscreenMenu：⌘/Ctrl+M，超大字链接逐个入场） |
+| ✅ #139 | 网格/列表视图切换（VaultBrowser 列表行：迷你 iframe + 数据列） |
+| ✅ #403 | 跟随系统主题（dark/light/system 三态，matchMedia 监听） |
+| ✅ #209 | 滑动确认危险操作（SlideConfirm：管理中心拒绝投稿改为滑块确认） |
+| ✅ #93 | 滚动 spy 圆点导航（ScrollSpy：首页右侧，悬停显示标签） |
+| ✅ #103 | 顶部滚动进度条（ScrollProgress 渐变光条） |
+| ✅ #105 | 回到顶部悬浮球（BackToTop，滚动 700px 后弹出） |
+| ✅ #273 | 拖拽看板（Kanban：收藏页 想做/进行中/已上线 三列，HTML5 DnD，localStorage） |
+| ✅ #218 | 卡片网格方向键导航（VaultBrowser 焦点箭头移动） |
+| ✅ #355/#356 | 评论与评分（/api/comments/[slug] GET/POST，JSON 文件存储，防链接垃圾；item 页五星评分 + 评论流） |
+| ✅ #113 | 实时游乐场（item 页 CSS/HTML 双栏编辑即时预览 + 重置） |
+| ✅ 资产包 wave10（6） | 粒子星球 3D、3D 卡片墙、3D 翻转卡、拖拽 snap 轮播、粒子进度环、涟漪干涉场 |
+| ✅ 资产包 wave11（6） | 跑马灯 ticker、骨架屏微光、悬停暂停 logo 跑马灯、clip-path 快门文字、模糊渐进加载、庆祝彩屑按钮 |
+| ✅ 资产包 wave12（6） | 音频均衡器波形、磁吸按钮、3D 翻书、键盘快捷键 kbd 图例、聚光倾斜定价卡、canvas 光标火花拖尾 |
+
+资源总数：92 → **110**（wave10/11/12 各 6 个）。

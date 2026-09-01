@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Item } from "@/lib/types";
 import ItemCard from "@/components/ItemCard";
 import { Icon } from "@/components/icons";
+import Kanban from "@/components/Kanban";
 import type { Lang } from "@/lib/i18n";
 
 const KEY = "mv_favs";
@@ -65,10 +66,13 @@ export default function FavoritesClient({ items, lang }: { items: Item[]; lang: 
   }
 
   return (
-    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {saved.map((item) => (
-        <ItemCard key={item.id} item={item} lang={lang} />
-      ))}
-    </div>
+    <>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {saved.map((item) => (
+          <ItemCard key={item.id} item={item} lang={lang} />
+        ))}
+      </div>
+      <Kanban items={items as never} lang={lang} />
+    </>
   );
 }
