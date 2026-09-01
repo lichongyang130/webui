@@ -7,6 +7,7 @@ import { EXTRA_TEMPLATE_ITEMS } from "./extra-templates";
 import { EXTRA_COMPONENT_ITEMS } from "./extra-components";
 import { EXTRA_ELEMENT_ITEMS } from "./extra-elements";
 import { EXTRA_ANIMATION_ITEMS } from "./extra-animations";
+import { WAVE4_ITEMS } from "./wave4";
 import { withReactSources } from "./react";
 
 const RAW_ITEMS: Item[] = [
@@ -18,6 +19,7 @@ const RAW_ITEMS: Item[] = [
   ...EXTRA_ELEMENT_ITEMS,
   ...ANIMATION_ITEMS,
   ...EXTRA_ANIMATION_ITEMS,
+  ...WAVE4_ITEMS,
 ];
 
 export const SEED_ITEMS: Item[] = withReactSources(RAW_ITEMS);
