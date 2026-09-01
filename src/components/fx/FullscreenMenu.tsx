@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
+import { SITES, SITE_TECH_FILTERS, categoryTechHref, techLabel } from "@/lib/sites";
 import { playSfx } from "./fx-core";
 
 /** Full-screen big-type navigation overlay — idea #127/#147. */
@@ -30,8 +31,7 @@ export default function FullscreenMenu({ lang }: { lang: "en" | "zh" }) {
     };
   }, [open]);
 
-  const links = [
-    ...CATEGORIES.map((c) => ({ href: `/${c.slug}`, en: c.name, zh: c.nameZh })),
+  const auxLinks = [
     { href: "/showcase", en: "Horizontal hall", zh: "横向展厅" },
     { href: "/explore", en: "Explore", zh: "全部资源" },
     { href: "/builder", en: "AI workshop", zh: "AI 工坊" },
@@ -71,24 +71,78 @@ export default function FullscreenMenu({ lang }: { lang: "en" | "zh" }) {
             </button>
           </div>
           <nav className="container-v flex flex-1 flex-col justify-center gap-1 overflow-y-auto pb-10">
-            {links.map((l, i) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="group flex items-baseline gap-4 border-b border-white/[0.07] py-2 transition"
-                style={{
-                  animation: `fx-letter-in .5s cubic-bezier(.22,1,.36,1) both`,
-                  animationDelay: `${80 + i * 45}ms`,
-                }}
-              >
-                <span className="font-mono text-xs text-fuchsia-300/60">{String(i + 1).padStart(2, "0")}</span>
-                <span className="text-3xl font-extrabold tracking-tight text-white/80 transition group-hover:translate-x-3 group-hover:text-white sm:text-5xl">
-                  {zh ? l.zh : l.en}
-                </span>
-                <span className="ml-auto opacity-0 transition group-hover:opacity-100">→</span>
-              </Link>
-            ))}
+            {/* LEVEL-1: the five vaults, each with LEVEL-2 */}
+            <div className="mb-4 grid gap-x-10 gap-y-2 lg:grid-cols-2">
+              {SITES.map((site, i) => (
+                <div
+                  key={site.id}
+                  className="border-b border-white/[0.07] py-2"
+                  style={{
+                    animation: `fx-letter-in .5s cubic-bezier(.22,1,.36,1) both`,
+                    animationDelay: `${80 + i * 40}ms`,
+                  }}
+                >
+                  <Link
+                    href={`/${site.category}`}
+                    onClick={() => setOpen(false)}
+                    className="group flex items-baseline gap-4 transition"
+                  >
+                    <span className="font-mono text-xs text-fuchsia-300/60">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-2xl font-extrabold tracking-tight text-white/80 transition group-hover:translate-x-3 group-hover:text-white sm:text-4xl">
+                      {zh ? site.nameZh : site.name}
+                    </span>
+                    <span className="ml-auto opacity-0 transition group-hover:opacity-100">→</span>
+                  </Link>
+                  <div className="ml-10 mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
+                      {zh ? "分类" : "Cat"}
+                    </span>
+                    <Link
+                      href={`/${site.category}`}
+                      onClick={() => setOpen(false)}
+                      className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs font-semibold text-white/70 transition hover:text-white"
+                    >
+                      {zh ? CATEGORIES.find((c) => c.slug === site.category)?.nameZh : CATEGORIES.find((c) => c.slug === site.category)?.name}
+                    </Link>
+                    <span className="ml-2 text-[10px] font-bold uppercase tracking-widest text-white/30">
+                      {zh ? "技术" : "Tech"}
+                    </span>
+                    {SITE_TECH_FILTERS.map((tech) => (
+                      <Link
+                        key={tech}
+                        href={categoryTechHref(site.category, tech)}
+                        onClick={() => setOpen(false)}
+                        className="rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-xs font-semibold text-white/50 transition hover:border-fuchsia-400/50 hover:text-white"
+                      >
+                        {techLabel(tech)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-2 border-t border-white/10 pt-3 text-white/35">
+              <div className="mb-2 text-[10px] font-bold uppercase tracking-widest">
+                {zh ? "更多" : "More"}
+              </div>
+              <div className="flex flex-wrap gap-x-6 gap-y-1">
+                {auxLinks.map((l, i) => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="text-base font-semibold text-white/60 transition hover:text-white sm:text-lg"
+                    style={{
+                      animation: `fx-letter-in .5s cubic-bezier(.22,1,.36,1) both`,
+                      animationDelay: `${260 + i * 40}ms`,
+                    }}
+                  >
+                    {zh ? l.zh : l.en}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </nav>
           <div className="container-v pb-8 text-xs text-white/30">
             {zh ? "提示：⌘/Ctrl+M 可随时打开此菜单" : "Tip: ⌘/Ctrl+M opens this menu anywhere"}

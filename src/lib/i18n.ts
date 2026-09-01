@@ -40,7 +40,7 @@ export const DICT: Dict = {
   statStars: { en: "GitHub stars", zh: "GitHub 星标" },
   statCopies: { en: "Prompts copied", zh: "Prompt 复制" },
   statPreviews: { en: "Live previews", zh: "实时预览" },
-  sectionVaults: { en: "Four vaults", zh: "四大资源库" },
+  sectionVaults: { en: "Five source sites", zh: "五大宝藏网站" },
   sectionVaultsTitle: {
     en: "Everything the 5 treasure sites have — unified",
     zh: "五大宝藏网站，一个资源库全部集齐",

@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ItemCard from "@/components/ItemCard";
 import { Icon } from "@/components/icons";
 import { CATEGORIES } from "@/lib/categories";
+import { SITES } from "@/lib/sites";
 import { getItems, getStats, getSettings, getPopularTags } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import FxHero from "@/components/fx/FxHero";
@@ -74,23 +75,25 @@ export default async function HomePage() {
           </div>
         </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map((c, i) => (
-            <Reveal key={c.slug} delay={i * 90}>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {SITES.map((site, i) => (
+            <Reveal key={site.id} delay={i * 90}>
               <Link
-                href={`/${c.slug}`}
+                href={`/${site.category}`}
                 className="group fx-border-glow relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition-all duration-300 hover:-translate-y-2 hover:border-white/20"
               >
                 <div
-                  className={`absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${c.accent} opacity-15 blur-3xl transition-opacity duration-500 group-hover:opacity-35`}
+                  className={`absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${site.accent} opacity-15 blur-3xl transition-opacity duration-500 group-hover:opacity-35`}
                 />
-                <div className={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${c.accent} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}>
-                  <Icon name={c.icon} className="h-6 w-6 text-white" />
+                <div className={`grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br ${site.accent} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6`}>
+                  <Icon name={site.icon} className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="mt-5 text-lg font-bold">{zh ? c.nameZh : c.name}</h3>
-                <p className="mt-1 text-[13px] font-medium text-white/45">{zh ? c.taglineZh : c.tagline}</p>
+                <h3 className="mt-5 text-lg font-bold">{zh ? site.nameZh : site.name}</h3>
+                <p className="mt-1 text-[13px] font-medium text-white/45">{zh ? site.descZh : site.desc}</p>
                 <p className="mt-3 text-[13px] leading-relaxed text-white/55">
-                  {zh ? c.descriptionZh : c.description}
+                  {zh
+                    ? CATEGORIES.find((c) => c.slug === site.category)?.descriptionZh
+                    : CATEGORIES.find((c) => c.slug === site.category)?.description}
                 </p>
                 <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-white/70 transition group-hover:text-white">
                   {t(lang, "enterVault")}
