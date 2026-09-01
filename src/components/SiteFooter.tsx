@@ -4,6 +4,7 @@ import { getStats } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import { Icon } from "./icons";
 import FooterExtras from "./FooterExtras";
+import TextScramble from "./fx/TextScramble";
 
 export default async function SiteFooter() {
   const stats = getStats();
@@ -19,7 +20,7 @@ export default async function SiteFooter() {
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500">
               <Icon name="sparkles" className="h-5 w-5 text-white" />
             </span>
-            <span className="text-lg font-extrabold">MotionVault</span>
+            <TextScramble as="span" text="MotionVault" className="text-lg font-extrabold" hover />
           </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">{t(lang, "footerAbout")}</p>
           <div className="mt-5 flex gap-2">
