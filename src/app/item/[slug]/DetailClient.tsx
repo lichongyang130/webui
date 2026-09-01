@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Item } from "@/lib/types";
 import { Icon } from "@/components/icons";
 import type { Lang } from "@/lib/i18n";
@@ -96,7 +96,17 @@ export default function DetailClient({
 }) {
   const [tab, setTab] = useState<"preview" | "source" | "react" | "prompt">("preview");
   const [mode, setMode] = useState<"dark" | "light">("dark");
+  const [fullscreen, setFullscreen] = useState(false);
+  const fx = useFx();
   const L = (k: string) => LABELS[k]?.[lang] ?? k;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const tabs = [
     { k: "preview" as const, l: L("livePreview"), icon: "eye" },
@@ -127,18 +137,32 @@ export default function DetailClient({
         ))}
         <div className="ml-auto flex items-center gap-2">
           {tab === "preview" && (
-            <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
-              {(["dark", "light"] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition ${
-                    mode === m ? "bg-white/15 text-white" : "text-white/45 hover:text-white"
-                  }`}
-                >
-                  {L(m)}
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] p-1">
+                {(["dark", "light"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`rounded-md px-2.5 py-1 text-[11px] font-bold transition ${
+                      mode === m ? "bg-white/15 text-white" : "text-white/45 hover:text-white"
+                    }`}
+                  >
+                    {L(m)}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  fx.play("open");
+                  setFullscreen(true);
+                }}
+                title={lang === "zh" ? "全屏预览" : "Fullscreen preview"}
+                className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/[0.04] text-white/60 transition hover:border-cyan-400/50 hover:text-cyan-300"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                </svg>
+              </button>
             </div>
           )}
           {tab === "source" && <CopyButton text={item.html} label={L("copyHtml")} trackSlug={item.slug} lang={lang} />}
@@ -204,6 +228,47 @@ export default function DetailClient({
           <pre className="codeblock whitespace-pre-wrap text-[13px] leading-relaxed text-white/85">
             {item.prompt}
           </pre>
+        </div>
+      )}
+
+      {/* Fullscreen lightbox — idea #165/#123 */}
+      {fullscreen && (
+        <div className="fixed inset-0 z-[9600] flex flex-col bg-[#05050f]/95 backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
+            <span className="flex items-center gap-2 text-sm font-bold">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+              {item.title}
+            </span>
+            <div className="flex items-center gap-2">
+              {(["dark", "light"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+                    mode === m ? "border-fuchsia-400/50 bg-fuchsia-500/15 text-fuchsia-200" : "border-white/10 text-white/50 hover:text-white"
+                  }`}
+                >
+                  {L(m)}
+                </button>
+              ))}
+              <button
+                onClick={() => setFullscreen(false)}
+                className="ml-2 grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-white/70 transition hover:border-rose-400/50 hover:text-rose-300"
+              >
+                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="relative flex-1">
+            <iframe
+              srcDoc={themedHtml(item.html, mode)}
+              title={item.title}
+              sandbox="allow-scripts"
+              className="h-full w-full border-0"
+            />
+          </div>
         </div>
       )}
     </div>

@@ -17,6 +17,8 @@ interface Row {
 const NAV: { label: string; labelZh: string; href: string; icon: string; group: string; groupZh: string }[] = [
   { label: "Home", labelZh: "首页", href: "/", icon: "sparkles", group: "Navigate", groupZh: "导航" },
   { label: "Explore all assets", labelZh: "探索全部资源", href: "/explore", icon: "search", group: "Navigate", groupZh: "导航" },
+  { label: "Horizontal hall", labelZh: "横向展厅", href: "/showcase", icon: "grid", group: "Navigate", groupZh: "导航" },
+  { label: "Surprise me (random)", labelZh: "随机惊喜", href: "/random", icon: "bolt", group: "Navigate", groupZh: "导航" },
   { label: "Templates", labelZh: "网站模板", href: "/templates", icon: "layout-template", group: "Navigate", groupZh: "导航" },
   { label: "Components", labelZh: "动画组件", href: "/components", icon: "blocks", group: "Navigate", groupZh: "导航" },
   { label: "UI Elements", labelZh: "UI 元素", href: "/elements", icon: "grid", group: "Navigate", groupZh: "导航" },

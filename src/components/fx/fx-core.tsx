@@ -13,7 +13,7 @@ import React, {
 } from "react";
 
 export type Accent = "violet" | "cyber" | "sunset" | "forest" | "gold";
-export type BgStyle = "aurora" | "grid" | "dots" | "stars" | "minimal";
+export type BgStyle = "aurora" | "grid" | "dots" | "stars" | "matrix" | "minimal";
 
 export interface FxSettings {
   cursor: boolean;

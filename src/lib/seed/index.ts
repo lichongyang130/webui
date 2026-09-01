@@ -9,6 +9,7 @@ import { EXTRA_ELEMENT_ITEMS } from "./extra-elements";
 import { EXTRA_ANIMATION_ITEMS } from "./extra-animations";
 import { WAVE4_ITEMS } from "./wave4";
 import { WAVE5_ITEMS } from "./wave5";
+import { WAVE6_ITEMS } from "./wave6";
 import { withReactSources } from "./react";
 
 const RAW_ITEMS: Item[] = [
@@ -22,6 +23,7 @@ const RAW_ITEMS: Item[] = [
   ...EXTRA_ANIMATION_ITEMS,
   ...WAVE4_ITEMS,
   ...WAVE5_ITEMS,
+  ...WAVE6_ITEMS,
 ];
 
 export const SEED_ITEMS: Item[] = withReactSources(RAW_ITEMS);

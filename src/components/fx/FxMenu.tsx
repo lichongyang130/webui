@@ -8,6 +8,7 @@ const BGS: { id: BgStyle; en: string; zh: string }[] = [
   { id: "grid", en: "Grid", zh: "网格" },
   { id: "dots", en: "Dots", zh: "点阵" },
   { id: "stars", en: "Stars", zh: "星空" },
+  { id: "matrix", en: "Matrix rain", zh: "代码雨" },
   { id: "minimal", en: "Minimal", zh: "极简" },
 ];
 

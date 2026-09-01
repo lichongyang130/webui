@@ -103,9 +103,16 @@ export default function BurstCanvas() {
 
     let mx = -100,
       my = -100;
+    const ribbon: { x: number; y: number; t: number }[] = [];
     const onMove = (e: PointerEvent) => {
+      const speed = Math.hypot(e.clientX - mx, e.clientY - my);
       mx = e.clientX;
       my = e.clientY;
+      // ribbon trail — idea #22: only when moving fast
+      if (fxEnabled && settings.particles && speed > 6) {
+        ribbon.push({ x: mx, y: my, t: performance.now() });
+        if (ribbon.length > 34) ribbon.shift();
+      }
     };
 
     const off1 = onBurst((x, y, opts) => parts.push(...makeParticles(x, y, opts)));
@@ -159,6 +166,30 @@ export default function BurstCanvas() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.4 * p.life, 0, Math.PI * 2);
         ctx.fill();
+      }
+
+      // fast-move color ribbon — idea #22
+      const now = performance.now();
+      for (let i = ribbon.length - 1; i >= 0; i--) {
+        if (now - ribbon[i].t > 700) ribbon.splice(i, 1);
+      }
+      if (ribbon.length > 2) {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        for (let i = 1; i < ribbon.length; i++) {
+          const a = ribbon[i - 1],
+            b = ribbon[i];
+          const age = 1 - Math.min(1, (now - b.t) / 700);
+          ctx.strokeStyle = `hsla(${(t * 3 + i * 12) % 360}, 85%, 65%, ${0.45 * age})`;
+          ctx.lineWidth = 2.5 * age + 0.5;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+          ctx.quadraticCurveTo(a.x, a.y, mid.x, mid.y);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
 
       for (let i = parts.length - 1; i >= 0; i--) {

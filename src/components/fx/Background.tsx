@@ -192,6 +192,61 @@ function Stars() {
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden />;
 }
 
+/** Matrix code rain — ideas #9 / #71. */
+function Matrix() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const { fxEnabled, settings } = useFx();
+  useEffect(() => {
+    if (!fxEnabled) return;
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const glyphs = "アァカサタナハマヤラワガザダバパ0123456789ABCDEF<>/*+$#".split("");
+    let cols = 0;
+    let drops: number[] = [];
+    let speeds: number[] = [];
+    const fontSize = 15;
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      cols = Math.floor(canvas.width / fontSize);
+      drops = Array.from({ length: cols }, () => Math.random() * -60);
+      speeds = Array.from({ length: cols }, () => 0.6 + Math.random() * 0.8);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    const acc = ACCENTS.find((a) => a.id === settings.accent) ?? ACCENTS[0];
+    let raf = 0;
+    let t = 0;
+    const draw = () => {
+      t++;
+      ctx.fillStyle = "rgba(7,7,17,0.12)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `${fontSize}px monospace`;
+      for (let i = 0; i < cols; i++) {
+        const ch = glyphs[(Math.random() * glyphs.length) | 0];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        // leading glyph bright white
+        ctx.fillStyle = "rgba(220,255,245,0.9)";
+        ctx.fillText(ch, x, y);
+        ctx.fillStyle = `rgba(${acc.c3},0.55)`;
+        ctx.fillText(glyphs[(Math.random() * glyphs.length) | 0], x, y - fontSize);
+        if (y > canvas.height && Math.random() > 0.976) drops[i] = Math.random() * -20;
+        drops[i] += speeds[i];
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, [fxEnabled, settings.accent]);
+  return <canvas ref={ref} className="absolute inset-0 h-full w-full opacity-60" aria-hidden />;
+}
+
 export default function Background() {
   const { settings, fxEnabled } = useFx();
   const spotRef = useRef<HTMLDivElement>(null);
@@ -230,6 +285,7 @@ export default function Background() {
       <div className="absolute inset-0 bg-[#070711]" />
       {bg === "aurora" && <Aurora />}
       {bg === "stars" && <Stars />}
+      {bg === "matrix" && <Matrix />}
       {bg === "grid" && <div className="absolute inset-0 bg-grid opacity-70" />}
       {bg === "dots" && (
         <div

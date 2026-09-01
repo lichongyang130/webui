@@ -32,6 +32,12 @@ export default async function SiteHeader() {
               {zh ? c.nameZh : c.name}
             </Link>
           ))}
+          <Link
+            href="/showcase"
+            className="rounded-lg px-3.5 py-2 text-sm font-semibold text-cyan-300/90 transition hover:bg-cyan-400/10 hover:text-cyan-200"
+          >
+            {zh ? "横向展厅" : "Hall"}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2.5">

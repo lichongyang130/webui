@@ -5,6 +5,7 @@ import { Icon } from "./icons";
 import FavButton from "./FavButton";
 import TiltCard from "./fx/TiltCard";
 import QuickCopy from "./fx/QuickCopy";
+import SmartPreview from "./fx/SmartPreview";
 import type { Lang } from "@/lib/i18n";
 
 function fmt(n: number) {
@@ -18,13 +19,7 @@ export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lan
       <Link href={`/item/${item.slug}`} className="flex h-full flex-col">
         {/* Live thumbnail */}
         <div className="relative aspect-[16/10] overflow-hidden border-b border-white/[0.07] bg-[#0a0a18]">
-          <iframe
-            srcDoc={item.html}
-            title={item.title}
-            loading="lazy"
-            sandbox="allow-scripts"
-            className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50"
-          />
+          <SmartPreview html={item.html} title={item.title} className="absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#070711] via-transparent to-transparent" />
           {item.featured && (
             <span className="fx-float absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-lg">
