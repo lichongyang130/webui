@@ -110,41 +110,22 @@ const codeWindow = doc({
 .tok-k{color:#c084fc}.tok-s{color:#6ee7b7}.tok-c{color:#5a567d}.tok-f{color:#22d3ee}.tok-n{color:#fbbf24}
 `,
   js: `
-const files=[
-`<span class="tok-k">export default function</span> <span class="tok-f">Hero</span>() {
-  <span class="tok-k">return</span> (
-    &lt;section <span class="tok-n">className</span>=<span class="tok-s">"aurora-stage"</span>&gt;
-      &lt;canvas <span class="tok-n">id</span>=<span class="tok-s">"gl"</span> /&gt;
-      &lt;h1&gt;<span class="tok-s">Ship in minutes.</span>&lt;/h1&gt;
-    &lt;/section&gt;
-  );
-}`,
-`<span class="tok-c">// fbm noise aurora fragment</span>
-<span class="tok-k">float</span> <span class="tok-f">fbm</span>(vec2 p){
-  <span class="tok-k">float</span> v=<span class="tok-n">0.</span>, a=.<span class="tok-n">5</span>;
-  <span class="tok-k">for</span>(<span class="tok-k">int</span> i=<span class="tok-n">0</span>;i&lt;<span class="tok-n">5</span>;i++){
-    v+=a*noise(p); p*=<span class="tok-n">2.03</span>; a*=.<span class="tok-n">5</span>;
-  } <span class="tok-k">return</span> v;
-}`,
-`<span class="tok-c"># Prompt</span>
-Create a landing hero with a
-WebGL aurora curtain reacting to
-the cursor, violet-cyan palette,
-inter font, magnetic CTAs.
-<span class="tok-s">→ paste into Cursor</span>`
+var files=[
+ '<span class="tok-k">export default function</span> <span class="tok-f">Hero</span>() {\n  <span class="tok-k">return</span> (\n    &lt;section <span class="tok-n">className</span>=<span class="tok-s">&quot;aurora-stage&quot;</span>&gt;\n      &lt;canvas <span class="tok-n">id</span>=<span class="tok-s">&quot;gl&quot;</span> /&gt;\n      &lt;h1&gt;Ship in minutes.&lt;/h1&gt;\n    &lt;/section&gt;\n  );\n}',
+ '<span class="tok-c">// fbm noise aurora fragment</span>\n<span class="tok-k">float</span> <span class="tok-f">fbm</span>(vec2 p){\n  <span class="tok-k">float</span> v=<span class="tok-n">0.</span>, a=.<span class="tok-n">5</span>;\n  <span class="tok-k">for</span>(<span class="tok-k">int</span> i=<span class="tok-n">0</span>;i&lt;<span class="tok-n">5</span>;i++){\n    v+=a*noise(p); p*=<span class="tok-n">2.03</span>; a*=.<span class="tok-n">5</span>;\n  } <span class="tok-k">return</span> v;\n}',
+ '<span class="tok-c"># Prompt</span>\nCreate a landing hero with a\nWebGL aurora curtain reacting to\nthe cursor, violet-cyan palette,\nmagnetic CTAs.\n<span class="tok-s">&rarr; paste into Cursor</span>'
 ];
-const el=document.getElementById('code');
-let typing=null;
+var el=document.getElementById('code'), typing=null;
 function show(i){
   clearInterval(typing);
-  el.innerHTML='';let ci=0;
-  typing=setInterval(()=>{el.innerHTML=files[i].slice(0,ci+=3);
+  el.innerHTML='';var ci=0;
+  typing=setInterval(function(){el.innerHTML=files[i].slice(0,ci+=3);
     if(ci>=files[i].length)clearInterval(typing)},12);
 }
-document.querySelectorAll('.cw-tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.cw-tab').forEach(x=>x.classList.toggle('on',x===t));
+document.querySelectorAll('.cw-tab').forEach(function(t){t.onclick=function(){
+  document.querySelectorAll('.cw-tab').forEach(function(x){x.classList.toggle('on',x===t)});
   show(+t.dataset.f);
-});
+}});
 show(0);
 `,
 });
