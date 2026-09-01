@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
 import { CATEGORIES } from "@/lib/categories";
-import { getStats, getEvents, getItems, getAllItemsAdmin, getDailyStats } from "@/lib/db";
+import { getStats, getEvents, getItems, getAllItemsAdmin, getDailyStats, getPopularTags } from "@/lib/db";
 import TrendChart from "./TrendChart";
+import { DoughnutChart, TagCloud, BarRace } from "./AdminWidgets";
 
 export default function AdminDashboard() {
   const stats = getStats();
@@ -68,33 +69,38 @@ export default function AdminDashboard() {
       {/* Trend chart */}
       <TrendChart data={daily} />
 
+      {/* Tag cloud */}
+      <div className="glass rounded-2xl p-6">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">
+          Hot tags <span className="ml-2 normal-case tracking-normal text-white/25">size = usage frequency</span>
+        </h2>
+        <div className="mt-4">
+          <TagCloud tags={getPopularTags(24)} />
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-        {/* Categories */}
+        {/* Categories doughnut + bars */}
         <div className="glass rounded-2xl p-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-white/40">Assets by vault</h2>
-          <div className="mt-5 space-y-4">
-            {catRows.map((c) => {
-              const pct = stats.total ? Math.round((c.count / stats.total) * 100) : 0;
-              return (
-                <div key={c.slug}>
-                  <div className="mb-1.5 flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 font-medium">
-                      <Icon name={c.icon} className="h-4 w-4 text-white/50" />
-                      {c.name}
-                    </span>
-                    <span className="text-white/50">
-                      {c.count} <span className="text-white/30">· {pct}%</span>
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div
-                      className={`h-full rounded-full bg-gradient-to-r ${c.accent} transition-all duration-700`}
-                      style={{ width: `${Math.max(pct, 4)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+          <div className="mt-5">
+            <DoughnutChart
+              segments={[
+                { label: "Templates", value: catRows.find((c) => c.slug === "templates")?.count ?? 0, color: "#8b5cf6" },
+                { label: "Components", value: catRows.find((c) => c.slug === "components")?.count ?? 0, color: "#d946ef" },
+                { label: "Elements", value: catRows.find((c) => c.slug === "elements")?.count ?? 0, color: "#22d3ee" },
+                { label: "Animations", value: catRows.find((c) => c.slug === "animations")?.count ?? 0, color: "#f59e0b" },
+              ]}
+            />
+          </div>
+          <div className="mt-6 border-t border-white/[0.07] pt-5">
+            <BarRace
+              title="Views per vault"
+              rows={CATEGORIES.map((c) => ({
+                label: c.name,
+                value: getItems({ category: c.slug }).reduce((s, i) => s + i.views, 0),
+              }))}
+            />
           </div>
           <div className="mt-5 flex gap-3 border-t border-white/[0.07] pt-4 text-xs text-white/40">
             <span className="chip">{stats.drafts} unpublished draft{stats.drafts === 1 ? "" : "s"}</span>

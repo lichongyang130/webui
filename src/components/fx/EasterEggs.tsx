@@ -140,6 +140,18 @@ export default function EasterEggs({ lang }: { lang: "en" | "zh" }) {
     return () => document.removeEventListener("visibilitychange", onVis);
   }, [zh]);
 
+  // --- offline indicator (#239)
+  useEffect(() => {
+    const onOff = () => toast(zh ? "📡 网络断开，预览可能不可用" : "📡 You're offline — previews may not load", { tone: "err" });
+    const onOn = () => toast(zh ? "🌐 网络恢复" : "🌐 Back online");
+    window.addEventListener("offline", onOff);
+    window.addEventListener("online", onOn);
+    return () => {
+      window.removeEventListener("offline", onOff);
+      window.removeEventListener("online", onOn);
+    };
+  }, [toast, zh]);
+
   // --- shake for random asset (#499)
   useEffect(() => {
     let lastX = 0,

@@ -3,6 +3,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { getStats } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import { Icon } from "./icons";
+import FooterExtras from "./FooterExtras";
 
 export default async function SiteFooter() {
   const stats = getStats();
@@ -68,7 +69,10 @@ export default async function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/[0.06] py-5 text-center text-xs text-white/35">{t(lang, "footerRights")}</div>
+      <div className="flex flex-col items-center gap-2 border-t border-white/[0.06] py-5 text-center text-xs text-white/35 sm:flex-row sm:justify-between sm:text-left">
+        <span>{t(lang, "footerRights")}</span>
+        <FooterExtras lang={lang} />
+      </div>
     </footer>
   );
 }

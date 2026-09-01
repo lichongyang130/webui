@@ -204,6 +204,9 @@ export default function FxHero({
             <Link href="/templates" data-magnet className="ghost-btn text-base">
               {zh ? "浏览模板" : "Browse templates"}
             </Link>
+            <Link href="/random" data-magnet className="ghost-btn text-base">
+              🎲 {zh ? "随机惊喜" : "Surprise me"}
+            </Link>
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("mv-fx-palette"))}
