@@ -49,7 +49,7 @@ export default function CommandPalette({ lang }: { lang: "en" | "zh" }) {
       group: zh ? n.groupZh : n.group,
     }));
     const actions: Row[] = [
-      { id: "act-mode", label: settings.theme === "light" ? (zh ? "切回深色模式 🌙" : "Switch to dark mode 🌙") : (zh ? "切换浅色模式 ☀️" : "Switch to light mode ☀️"), href: "#mode", icon: "toggle-left", group: zh ? "操作" : "Actions", action: () => set({ theme: settings.theme === "light" ? "dark" : "light" }) },
+      { id: "act-mode", label: settings.theme === "light" ? (zh ? "切回深色模式 🌙" : "Switch to dark mode 🌙") : settings.theme === "system" ? (zh ? "强制深色模式 🌙" : "Force dark mode 🌙") : (zh ? "切换浅色模式 ☀️" : "Switch to light mode ☀️"), href: "#mode", icon: "toggle-left", group: zh ? "操作" : "Actions", action: () => set({ theme: settings.theme === "light" ? "dark" : "light" }) },
       { id: "act-theme", label: zh ? "切换主题/特效设置" : "Open FX settings", href: "#fx", icon: "settings", group: zh ? "操作" : "Actions", action: () => window.dispatchEvent(new CustomEvent("mv-fx-menu")) },
       { id: "act-sound", label: zh ? (settings.sound ? "关闭音效" : "开启音效") : settings.sound ? "Turn sound off" : "Turn sound on", href: "#sound", icon: "bolt", group: zh ? "操作" : "Actions", action: () => set({ sound: !settings.sound }) },
       { id: "act-top", label: zh ? "回到顶部" : "Back to top", href: "#top", icon: "grid", group: zh ? "操作" : "Actions", action: () => window.scrollTo({ top: 0, behavior: "smooth" }) },

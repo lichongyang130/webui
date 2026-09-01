@@ -4,6 +4,7 @@ out/
 data/*.db
 data/*.db-journal
 data/vault.json
+data/comments.json
 .env*
 .DS_Store
 *.tsbuildinfo

@@ -9,6 +9,8 @@ import { CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
 import { getItemBySlug, getRelated, incrementViews } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import DetailClient, { DetailActions } from "./DetailClient";
+import Comments from "@/components/Comments";
+import Playground from "./Playground";
 import { ShareBar } from "@/components/fx/ShareVote";
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -57,6 +59,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
                 </span>
               </div>
               <DetailClient item={item} lang={lang} />
+              <Playground html={item.html} lang={lang} />
             </div>
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -169,6 +172,8 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
             </div>
           </section>
         )}
+
+        <Comments slug={item.slug} lang={lang} />
       </main>
       <SiteFooter />
     </div>

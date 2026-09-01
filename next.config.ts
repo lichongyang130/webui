@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const config: NextConfig = {
+  experimental: {
+    // enable cross-document view transitions for route changes
+    viewTransition: true,
+  },
+};
 
-export default nextConfig;
+export default config;

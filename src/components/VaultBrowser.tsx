@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { Item, CategorySlug } from "@/lib/types";
-import { CATEGORIES, TECH_LABELS } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
 import ItemCard from "./ItemCard";
 import { Icon } from "./icons";
 import Link from "next/link";
@@ -26,6 +26,7 @@ export default function VaultBrowser({
   const [sort, setSort] = useState<string>("popular");
   const [tech, setTech] = useState<string>("");
   const [activeTag, setActiveTag] = useState(initialTag);
+  const [view, setView] = useState<"grid" | "list">("grid");
 
   const SORTS = [
     { key: "popular", label: zh ? "最多浏览" : "Most viewed" },
@@ -102,6 +103,30 @@ export default function VaultBrowser({
               {s.label}
             </button>
           ))}
+        </div>
+        {/* grid / list view toggle — idea #139 */}
+        <div className="ml-auto flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+          <button
+            onClick={() => setView("grid")}
+            title={zh ? "网格视图" : "Grid view"}
+            className={`rounded-lg p-2 transition ${view === "grid" ? "bg-white/10 text-white" : "text-white/45 hover:text-white"}`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setView("list")}
+            title={zh ? "列表视图" : "List view"}
+            className={`rounded-lg p-2 transition ${view === "list" ? "bg-white/10 text-white" : "text-white/45 hover:text-white"}`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -183,16 +208,60 @@ export default function VaultBrowser({
         </div>
       ) : (
         <div
-          key={`${q}|${sort}|${tech}|${activeTag}`}
-          className="fx-grid-in grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          key={`${q}|${sort}|${tech}|${activeTag}|${view}`}
+          className={
+            view === "grid"
+              ? "fx-grid-in grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              : "fx-grid-in flex flex-col gap-3"
+          }
         >
-          {filtered.map((item, i) => (
-            <div key={item.id} className="fx-grid-item" style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }}>
-              <ItemCard item={item} lang={lang} />
-            </div>
-          ))}
+          {filtered.map((item, i) =>
+            view === "grid" ? (
+              <div key={item.id} className="fx-grid-item" style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }}>
+                <ItemCard item={item} lang={lang} />
+              </div>
+            ) : (
+              <ListRow key={item.id} item={item} lang={lang} delay={Math.min(i, 16) * 45} />
+            )
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+function ListRow({ item, lang, delay }: { item: Item; lang: Lang; delay: number }) {
+  const cat = CATEGORY_MAP[item.category];
+  return (
+    <Link
+      href={`/item/${item.slug}`}
+      className="fx-grid-item group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:border-fuchsia-400/40 hover:bg-white/[0.05]"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className="relative hidden h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0a0a18] sm:block">
+        <iframe
+          srcDoc={item.html}
+          title=""
+          loading="lazy"
+          sandbox="allow-scripts"
+          className="pointer-events-none h-[200%] w-[200%] origin-top-left scale-50"
+        />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex items-center rounded-full bg-gradient-to-r ${cat.accent} px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider`}>
+            {lang === "zh" ? cat.nameZh : cat.name}
+          </span>
+          {item.featured && <span className="text-[10px] font-bold text-amber-300">★ {lang === "zh" ? "精选" : "Featured"}</span>}
+        </div>
+        <h3 className="mt-1 truncate text-sm font-bold transition group-hover:text-fuchsia-200">{item.title}</h3>
+        <p className="truncate text-xs text-white/45">{item.summary}</p>
+      </div>
+      <div className="hidden shrink-0 items-center gap-4 text-xs text-white/40 md:flex">
+        <span className="flex items-center gap-1"><Icon name="eye" className="h-3.5 w-3.5" />{item.views.toLocaleString()}</span>
+        <span className="flex items-center gap-1"><Icon name="copy" className="h-3.5 w-3.5" />{item.copies.toLocaleString()}</span>
+      </div>
+      <Icon name="external" className="h-4 w-4 shrink-0 text-white/30 transition group-hover:text-fuchsia-300" />
+    </Link>
   );
 }

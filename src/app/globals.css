@@ -357,6 +357,48 @@ html[data-theme="light"] canvas.fx-noinvert {
   filter: invert(1) hue-rotate(180deg);
 }
 
+/* route view transitions — idea #226/#234 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(root) {
+  animation-name: vt-old;
+}
+::view-transition-new(root) {
+  animation-name: vt-new;
+}
+@keyframes vt-old {
+  to {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.99);
+    filter: blur(6px);
+  }
+}
+@keyframes vt-new {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.99);
+    filter: blur(6px);
+  }
+}
+
+/* SVG scroll-draw lines — idea #97 */
+.fx-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-linecap: round;
+}
+.fx-draw.on {
+  animation: fx-draw 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes fx-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 /* reduced motion: respect user preference everywhere */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -373,3 +415,10 @@ html[data-theme="light"] canvas.fx-noinvert {
     filter: none;
   }
 }
+
+/* ---- back to top pop ---- */
+@keyframes fx-pop {
+  from { opacity: 0; transform: scale(.4) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.fx-pop { animation: fx-pop .35s cubic-bezier(.34,1.56,.64,1) both; }

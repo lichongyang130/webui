@@ -14,7 +14,7 @@ import React, {
 
 export type Accent = "violet" | "cyber" | "sunset" | "forest" | "gold";
 export type BgStyle = "aurora" | "grid" | "dots" | "stars" | "matrix" | "minimal";
-export type Theme = "dark" | "light";
+export type Theme = "dark" | "light" | "system";
 
 export interface FxSettings {
   cursor: boolean;
@@ -288,7 +288,20 @@ export function FxProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty("--neon", String(settings.neon));
     root.dataset.bg = settings.bg;
     root.dataset.accent = settings.accent;
-    root.dataset.theme = settings.theme;
+
+    // effective theme with system following (#403)
+    const applyTheme = () => {
+      const wantsLight =
+        settings.theme === "light" ||
+        (settings.theme === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
+      root.dataset.theme = wantsLight ? "light" : "dark";
+    };
+    applyTheme();
+    if (settings.theme === "system") {
+      const mq = window.matchMedia("(prefers-color-scheme: light)");
+      mq.addEventListener("change", applyTheme);
+      return () => mq.removeEventListener("change", applyTheme);
+    }
   }, [settings, mounted]);
 
   const reduced = settings.reduced || systemReduced;

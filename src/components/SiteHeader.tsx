@@ -5,6 +5,7 @@ import { getLang, t } from "@/lib/i18n";
 import { Icon } from "./icons";
 import LangSwitcher from "./LangSwitcher";
 import SearchButton from "./SearchButton";
+import FullscreenMenu from "./fx/FullscreenMenu";
 
 export default async function SiteHeader() {
   const s = getSettings();
@@ -52,6 +53,7 @@ export default async function SiteHeader() {
           <Link href="/submit" className="ghost-btn hidden !px-4 !py-2 text-xs md:inline-flex">
             {t(lang, "navSubmit")}
           </Link>
+          <FullscreenMenu lang={lang} />
           <SearchButton label={t(lang, "navSearch")} />
           <Link href="/admin" className="grad-btn !px-4 !py-2 text-xs">
             <Icon name="shield" className="h-4 w-4" />

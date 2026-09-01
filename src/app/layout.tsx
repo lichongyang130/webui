@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import FXLayer from "@/components/fx/FXLayer";
+import ScrollProgress from "@/components/fx/ScrollProgress";
 import { getLang } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-screen antialiased">
         <FXLayer lang={lang} />
+        <ScrollProgress />
         {children}
       </body>
     </html>

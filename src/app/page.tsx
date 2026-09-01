@@ -8,6 +8,9 @@ import { getItems, getStats, getSettings, getPopularTags } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import FxHero from "@/components/fx/FxHero";
 import { Reveal } from "@/components/fx/ScrollFx";
+import ParticleText from "@/components/fx/ParticleText";
+import ScrollDraw from "@/components/fx/ScrollDraw";
+import ScrollSpy from "@/components/fx/ScrollSpy";
 
 const MARQUEE = [
   "✦ MOTION SITES",
@@ -37,6 +40,7 @@ export default async function HomePage() {
       <SiteHeader />
 
       {/* -------------------------------------------------- HERO */}
+      <ScrollSpy items={[{id:"vaults",label:zh?"资源库":"Vaults"},{id:"featured",label:zh?"精选":"Featured"},{id:"how",label:zh?"指南":"How it works"},{id:"newest",label:zh?"最新":"Newest"},{id:"cta",label:zh?"开始":"Get started"}]} />
       <FxHero lang={lang} total={stats.total} copies={stats.copies} views={stats.views} stars={stats.stars} />
 
       {/* marquee */}
@@ -58,7 +62,7 @@ export default async function HomePage() {
       </div>
 
       {/* -------------------------------------------------- CATEGORIES */}
-      <section className="container-v py-20">
+      <section id="vaults" className="container-v scroll-mt-24 py-20">
         <Reveal className="mb-10 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-fuchsia-300">
@@ -99,7 +103,7 @@ export default async function HomePage() {
       </section>
 
       {/* -------------------------------------------------- FEATURED */}
-      <section className="container-v py-10">
+      <section id="featured" className="container-v scroll-mt-24 py-10">
         <Reveal className="mb-8 flex items-end justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-300">
@@ -124,7 +128,7 @@ export default async function HomePage() {
       </section>
 
       {/* -------------------------------------------------- HOW IT WORKS */}
-      <section className="container-v py-20">
+      <section id="how" className="container-v scroll-mt-24 py-20">
         <Reveal className="rounded-3xl border border-white/10 bg-gradient-to-br from-violet-950/40 via-[#0d0d22] to-fuchsia-950/30 p-8 sm:p-12">
           <h2 className="text-center text-3xl font-extrabold tracking-tight">
             {zh ? (
@@ -165,7 +169,7 @@ export default async function HomePage() {
       </section>
 
       {/* -------------------------------------------------- NEWEST */}
-      <section className="container-v py-10">
+      <section id="newest" className="container-v scroll-mt-24 py-10">
         <Reveal className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">{t(lang, "newestKicker")}</p>
           <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">{t(lang, "newestTitle")}</h2>
@@ -179,11 +183,33 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* scroll-drawn flourish — idea #97 */}
+      <div className="container-v py-6">
+        <ScrollDraw className="mx-auto w-full max-w-4xl opacity-70">
+          <path
+            className="fx-draw"
+            pathLength={1}
+            d="M20 60 C150 10, 250 110, 360 55 S540 30, 580 60"
+            stroke="url(#fd1)"
+            strokeWidth="2"
+          />
+          <path className="fx-draw" pathLength={1} d="M60 80 C200 40, 400 100, 540 70" stroke="rgba(255,255,255,.18)" strokeWidth="1" />
+          <circle className="fx-draw" pathLength={1} cx="580" cy="60" r="5" stroke="rgb(103,232,249)" strokeWidth="2" />
+          <defs>
+            <linearGradient id="fd1" x1="0" x2="1">
+              <stop offset="0" stopColor="rgb(139,92,246)" />
+              <stop offset="0.5" stopColor="rgb(217,70,239)" />
+              <stop offset="1" stopColor="rgb(34,211,238)" />
+            </linearGradient>
+          </defs>
+        </ScrollDraw>
+      </div>
+
       {/* -------------------------------------------------- CTA */}
-      <section className="container-v py-20">
+      <section id="cta" className="container-v scroll-mt-24 py-12">
         <Reveal className="fx-border-glow relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-cyan-500/20 p-12 text-center">
           <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-fuchsia-500/30 blur-[100px]" />
-          <h2 className="relative text-3xl font-extrabold sm:text-4xl">{t(lang, "ctaTitle")}</h2>
+          <ParticleText text={zh ? "开始创造" : "START SHIPPING"} className="relative mx-auto max-w-3xl" height={150} />
           <p className="relative mx-auto mt-4 max-w-xl text-white/60">{t(lang, "ctaDesc")}</p>
           <div className="relative mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/explore" data-magnet className="grad-btn fx-pulse-glow text-base">

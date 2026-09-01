@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/icons";
+import SlideConfirm from "@/components/fx/SlideConfirm";
 
 interface Row {
   id: string;
@@ -38,8 +39,9 @@ export default function SubmissionsClient({ initial }: { initial: Row[] }) {
     setBusy(null);
   }
 
+  const [confirmReject, setConfirmReject] = useState<string | null>(null);
+
   async function reject(id: string) {
-    if (!confirm("Reject and delete this submission?")) return;
     setBusy(id);
     const res = await fetch(`/api/admin/submissions/${id}`, { method: "DELETE" });
     if (res.ok) {
@@ -47,6 +49,7 @@ export default function SubmissionsClient({ initial }: { initial: Row[] }) {
       router.refresh();
     }
     setBusy(null);
+    setConfirmReject(null);
   }
 
   const visible = rows.filter((r) => !r._done);
@@ -96,13 +99,26 @@ export default function SubmissionsClient({ initial }: { initial: Row[] }) {
                 </button>
                 <button
                   disabled={busy === r.id}
-                  onClick={() => reject(r.id)}
+                  onClick={() => setConfirmReject(confirmReject === r.id ? null : r.id)}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-rose-400/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-300 transition hover:bg-rose-500/20"
                 >
                   <Icon name="trash" className="h-3.5 w-3.5" /> Reject
                 </button>
               </div>
             </div>
+            {confirmReject === r.id && (
+              <div className="mt-3 flex items-center gap-3">
+                <SlideConfirm
+                  label="Slide to reject & delete"
+                  doneLabel="Rejected"
+                  onConfirm={() => reject(r.id)}
+                  className="max-w-xs"
+                />
+                <button onClick={() => setConfirmReject(null)} className="text-xs text-white/40 underline">
+                  cancel
+                </button>
+              </div>
+            )}
             {preview?.id === r.id && (
               <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-[#0a0a18]">
                 <iframe srcDoc={r.html} title={r.title} sandbox="allow-scripts" className="h-[360px] w-full border-0" />
