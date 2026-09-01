@@ -6,11 +6,12 @@ import ItemCard from "@/components/ItemCard";
 import FavButton from "@/components/FavButton";
 import { Icon } from "@/components/icons";
 import { CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
-import { getItemBySlug, getRelated, incrementViews } from "@/lib/db";
+import { getItems, getItemBySlug, getRelated, incrementViews } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import DetailClient, { DetailActions } from "./DetailClient";
 import Comments from "@/components/Comments";
 import Playground from "./Playground";
+import PrevNext from "./PrevNext";
 import { ShareBar } from "@/components/fx/ShareVote";
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -172,6 +173,8 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
             </div>
           </section>
         )}
+
+        <PrevNext items={getItems({ category: item.category }).filter((i) => i.published)} current={slug} lang={lang} />
 
         <Comments slug={item.slug} lang={lang} />
       </main>
