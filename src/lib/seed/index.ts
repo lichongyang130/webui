@@ -12,6 +12,7 @@ import { WAVE5_ITEMS } from "./wave5";
 import { WAVE6_ITEMS } from "./wave6";
 import { WAVE7_ITEMS } from "./wave7";
 import { WAVE8_ITEMS } from "./wave8";
+import { WAVE9_ITEMS } from "./wave9";
 import { withReactSources } from "./react";
 
 const RAW_ITEMS: Item[] = [
@@ -28,6 +29,7 @@ const RAW_ITEMS: Item[] = [
   ...WAVE6_ITEMS,
   ...WAVE7_ITEMS,
   ...WAVE8_ITEMS,
+  ...WAVE9_ITEMS,
 ];
 
 export const SEED_ITEMS: Item[] = withReactSources(RAW_ITEMS);
