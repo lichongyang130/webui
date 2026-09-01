@@ -1,0 +1,193 @@
+"use client";
+
+import { useMemo, useState, useEffect } from "react";
+import { Item, CategorySlug } from "@/lib/types";
+import { CATEGORIES, TECH_LABELS } from "@/lib/categories";
+import ItemCard from "./ItemCard";
+import { Icon } from "./icons";
+import Link from "next/link";
+import type { Lang } from "@/lib/i18n";
+
+export default function VaultBrowser({
+  items,
+  activeCategory,
+  initialQuery = "",
+  initialTag = "",
+  lang = "en",
+}: {
+  items: Item[];
+  activeCategory?: CategorySlug;
+  initialQuery?: string;
+  initialTag?: string;
+  lang?: Lang;
+}) {
+  const zh = lang === "zh";
+  const [q, setQ] = useState(initialQuery);
+  const [sort, setSort] = useState<string>("popular");
+  const [tech, setTech] = useState<string>("");
+  const [activeTag, setActiveTag] = useState(initialTag);
+
+  const SORTS = [
+    { key: "popular", label: zh ? "最多浏览" : "Most viewed" },
+    { key: "copies", label: zh ? "最多复制" : "Most copied" },
+    { key: "newest", label: zh ? "最新" : "Newest" },
+    { key: "az", label: zh ? "按字母" : "A → Z" },
+  ];
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (activeTag) url.searchParams.set("tag", activeTag);
+    else url.searchParams.delete("tag");
+    window.history.replaceState(null, "", url.toString());
+  }, [activeTag]);
+
+  const allTags = useMemo(() => {
+    const m = new Map<string, number>();
+    items.forEach((i) => i.tags.forEach((t) => m.set(t, (m.get(t) ?? 0) + 1)));
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14);
+  }, [items]);
+
+  const filtered = useMemo(() => {
+    let list = [...items];
+    const query = q.trim().toLowerCase();
+    if (query)
+      list = list.filter(
+        (i) =>
+          i.title.toLowerCase().includes(query) ||
+          i.summary.toLowerCase().includes(query) ||
+          i.tags.some((t) => t.includes(query)) ||
+          i.author.toLowerCase().includes(query)
+      );
+    if (tech) list = list.filter((i) => i.tech.includes(tech as Item["tech"][number]));
+    if (activeTag) list = list.filter((i) => i.tags.includes(activeTag));
+    const sorters: Record<string, (a: Item, b: Item) => number> = {
+      popular: (a, b) => b.views - a.views,
+      copies: (a, b) => b.copies - a.copies,
+      newest: (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+      az: (a, b) => a.title.localeCompare(b.title),
+    };
+    return list.sort(sorters[sort]);
+  }, [items, q, sort, tech, activeTag]);
+
+  return (
+    <div>
+      {/* Search + sort bar */}
+      <div className="glass sticky top-16 z-30 -mx-2 mb-8 flex flex-wrap items-center gap-3 rounded-2xl p-3">
+        <div className="relative min-w-[220px] flex-1">
+          <Icon name="search" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={zh ? "搜索标题、标签、作者……" : "Search titles, tags, authors…"}
+            className="input-dark !pl-10"
+          />
+        </div>
+        <select value={tech} onChange={(e) => setTech(e.target.value)} className="input-dark w-auto cursor-pointer">
+          <option value="">{zh ? "全部技术" : "All tech"}</option>
+          {Object.entries(TECH_LABELS).map(([k, v]) => (
+            <option key={k} value={k} className="bg-[#161632]">
+              {v}
+            </option>
+          ))}
+        </select>
+        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+          {SORTS.map((s) => (
+            <button
+              key={s.key}
+              onClick={() => setSort(s.key)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                sort === s.key ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white" : "text-white/50 hover:text-white"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Category pills (on explore page) */}
+      {!activeCategory && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            href="/explore"
+            className="rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-1.5 text-xs font-bold text-white"
+          >
+            {zh ? "全部资源库" : "All vaults"}
+          </Link>
+          {CATEGORIES.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/${c.slug}`}
+              className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-semibold text-white/60 transition hover:border-fuchsia-400/40 hover:text-white"
+            >
+              {zh ? c.nameZh : c.name}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Tags */}
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wider text-white/35">
+          {zh ? "标签：" : "Tags:"}
+        </span>
+        <button
+          onClick={() => setActiveTag("")}
+          className={`chip transition ${!activeTag ? "!border-fuchsia-400/60 !text-white" : "hover:!border-white/30"}`}
+        >
+          {zh ? "全部" : "all"}
+        </button>
+        {allTags.map(([tag, count]) => (
+          <button
+            key={tag}
+            onClick={() => setActiveTag(activeTag === tag ? "" : tag)}
+            className={`chip transition ${
+              activeTag === tag ? "!border-fuchsia-400/60 !text-white" : "hover:!border-white/30"
+            }`}
+          >
+            #{tag} <span className="ml-1 text-white/30">{count}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="mb-5 text-sm text-white/40">
+        <span className="font-bold text-white/80">{filtered.length}</span>{" "}
+        {zh ? "个资源" : `asset${filtered.length === 1 ? "" : "s"}`}
+        {activeTag && (
+          <>
+            {" "}
+            {zh ? "标签" : "tagged"} <span className="text-fuchsia-300">#{activeTag}</span>
+          </>
+        )}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="glass rounded-3xl py-20 text-center">
+          <Icon name="search" className="mx-auto h-10 w-10 text-white/25" />
+          <p className="mt-4 text-lg font-semibold">
+            {zh ? "这个角落还没有资源" : "Nothing in this corner of the vault"}
+          </p>
+          <p className="mt-1 text-sm text-white/45">
+            {zh ? "换个关键词试试，或清除筛选条件。" : "Try a different search term or clear the filters."}
+          </p>
+          <button
+            onClick={() => {
+              setQ("");
+              setTech("");
+              setActiveTag("");
+            }}
+            className="ghost-btn mt-6"
+          >
+            {zh ? "清除筛选" : "Clear filters"}
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filtered.map((item) => (
+            <ItemCard key={item.id} item={item} lang={lang} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

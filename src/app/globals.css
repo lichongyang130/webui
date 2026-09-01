@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #070711;
+  color: #eceaf9;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(217, 70, 239, 0.35);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0b1a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b2b5c;
+  border-radius: 99px;
+  border: 2px solid #0b0b1a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8b5cf6;
+}
+
+@layer components {
+  .container-v {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+  .glass {
+    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+  .grad-text {
+    @apply bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent;
+  }
+  .grad-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_36px_-12px_rgba(217,70,239,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_46px_-12px_rgba(217,70,239,0.95)];
+  }
+  .ghost-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/60;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-white/60;
+  }
+  .input-dark {
+    @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:bg-violet-500/[0.07];
+  }
+}
+
+/* Code blocks */
+pre.codeblock {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  tab-size: 2;
+}
+
+/* subtle grid backdrop for public pages */
+.bg-grid {
+  background-image: linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
