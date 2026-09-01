@@ -4,17 +4,19 @@ import { getSettings, getStats } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import { Icon } from "./icons";
 import LangSwitcher from "./LangSwitcher";
+import SearchButton from "./SearchButton";
 
 export default async function SiteHeader() {
   const s = getSettings();
   const stats = getStats();
   const lang = await getLang();
+  const zh = lang === "zh";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[#070711]/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-[100] border-b border-white/[0.07] bg-[#070711]/75 backdrop-blur-xl">
       <div className="container-v flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-[0_8px_24px_-6px_rgba(217,70,239,0.7)]">
+        <Link href="/" data-egg="logo" className="group flex items-center gap-2.5">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-[0_8px_24px_-6px_rgba(217,70,239,0.7)] transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
             <Icon name="sparkles" className="h-5 w-5 text-white" />
           </span>
           <span className="text-lg font-extrabold tracking-tight">{s.siteName}</span>
@@ -27,7 +29,7 @@ export default async function SiteHeader() {
               href={`/${c.slug}`}
               className="rounded-lg px-3.5 py-2 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
             >
-              {lang === "zh" ? c.nameZh : c.name}
+              {zh ? c.nameZh : c.name}
             </Link>
           ))}
         </nav>
@@ -44,13 +46,7 @@ export default async function SiteHeader() {
           <Link href="/submit" className="ghost-btn hidden !px-4 !py-2 text-xs md:inline-flex">
             {t(lang, "navSubmit")}
           </Link>
-          <Link
-            href="/explore"
-            className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm text-white/50 transition hover:border-violet-400/40 hover:text-white xl:flex"
-          >
-            <Icon name="search" className="h-4 w-4" />
-            {t(lang, "navSearch")}
-          </Link>
+          <SearchButton label={t(lang, "navSearch")} />
           <Link href="/admin" className="grad-btn !px-4 !py-2 text-xs">
             <Icon name="shield" className="h-4 w-4" />
             {t(lang, "navAdmin")}
@@ -65,10 +61,14 @@ export default async function SiteHeader() {
             href={`/${c.slug}`}
             className="whitespace-nowrap rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold text-white/60"
           >
-            {lang === "zh" ? c.nameZh : c.name}
+            {zh ? c.nameZh : c.name}
           </Link>
-          ))}
+        ))}
       </nav>
+      {/* stats tiny ticker */}
+      <div className="pointer-events-none absolute -bottom-px left-1/2 hidden -translate-x-1/2 text-[10px] font-mono text-white/25 lg:block">
+        {stats.total} assets · {stats.copies.toLocaleString()} prompts copied
+      </div>
     </header>
   );
 }

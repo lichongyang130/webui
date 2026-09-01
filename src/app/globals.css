@@ -5,6 +5,12 @@
 :root {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* accent RGB triples (driven by FX engine) */
+  --c1: 139, 92, 246;
+  --c2: 217, 70, 239;
+  --c3: 34, 211, 238;
+  --neon: 0.85;
+  --glow: 0.55;
 }
 
 html {
@@ -18,8 +24,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* accent-aware text gradient — replaces hard-coded grad-text */
+.grad-text {
+  background-image: linear-gradient(100deg, rgb(var(--c1)), rgb(var(--c2)) 55%, rgb(var(--c3)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 ::selection {
-  background: rgba(217, 70, 239, 0.35);
+  background: rgba(var(--c2), 0.35);
 }
 
 /* Scrollbars */
@@ -36,7 +50,7 @@ body {
   border: 2px solid #0b0b1a;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8b5cf6;
+  background: rgb(var(--c1));
 }
 
 @layer components {
@@ -46,20 +60,28 @@ body {
   .glass {
     @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
   }
-  .grad-text {
-    @apply bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent;
-  }
   .grad-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_36px_-12px_rgba(217,70,239,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_46px_-12px_rgba(217,70,239,0.95)];
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5;
+    background-image: linear-gradient(100deg, rgb(var(--c1)), rgb(var(--c2)));
+    box-shadow: 0 10px 36px -12px rgba(var(--c2), calc(0.45 + var(--glow)));
+  }
+  .grad-btn:hover {
+    box-shadow: 0 18px 46px -12px rgba(var(--c2), calc(0.6 + var(--glow)));
   }
   .ghost-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/90 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/60;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/90 transition-all duration-300 hover:-translate-y-0.5;
+  }
+  .ghost-btn:hover {
+    border-color: rgba(var(--c1), 0.6);
   }
   .chip {
     @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-white/60;
   }
   .input-dark {
-    @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:bg-violet-500/[0.07];
+    @apply w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:bg-violet-500/[0.07];
+  }
+  .input-dark:focus {
+    border-color: rgba(var(--c1), 0.6);
   }
 }
 
@@ -73,7 +95,260 @@ pre.codeblock {
 
 /* subtle grid backdrop for public pages */
 .bg-grid {
-  background-image: linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(var(--c1), 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--c1), 0.06) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+/* ============================================================= FX engine */
+
+/* in-element ripple (RippleHost) */
+@keyframes fx-ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+.ripple-host {
+  position: relative;
+  overflow: hidden;
+}
+
+/* scroll reveal — idea #83 / #198 */
+.fx-reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.985);
+  filter: blur(6px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s ease;
+  transition-delay: var(--rd, 0ms);
+  will-change: opacity, transform;
+}
+.fx-revealed {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* filter / grid re-entry — ideas #160 #171 */
+@keyframes fx-grid-item {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fx-grid-item {
+  animation: fx-grid-item 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* toast entry */
+@keyframes fx-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fx-toast {
+  animation: fx-toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* shimmering skeleton — idea #161 */
+@keyframes fx-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.fx-skeleton {
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04) 40%, rgba(var(--c1), 0.12) 50%, rgba(255, 255, 255, 0.04) 60%);
+  background-size: 200% 100%;
+  animation: fx-shimmer 1.4s linear infinite;
+}
+
+/* animated conic border — idea #162 / #203 */
+@keyframes fx-border-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.fx-border-glow {
+  position: relative;
+}
+.fx-border-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ba, 0deg),
+    transparent 0%,
+    rgb(var(--c2)) 12%,
+    rgb(var(--c3)) 20%,
+    transparent 30%,
+    transparent 55%,
+    rgb(var(--c1)) 68%,
+    transparent 78%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s;
+  animation: fx-border-spin 4s linear infinite;
+  pointer-events: none;
+}
+.fx-border-glow:hover::before {
+  opacity: 1;
+}
+
+/* shimmering gradient text sweep — idea #5 */
+@keyframes fx-text-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+.fx-text-sweep {
+  background-size: 200% auto;
+  animation: fx-text-sweep 6s linear infinite;
+}
+
+/* floating badge — idea #24 */
+@keyframes fx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.fx-float {
+  animation: fx-float 4s ease-in-out infinite;
+}
+
+/* pulsing glow — idea #18 / #24 */
+@keyframes fx-pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--c2), calc(0.35 * var(--neon)));
+  }
+  50% {
+    box-shadow: 0 0 26px 4px rgba(var(--c2), calc(0.55 * var(--neon)));
+  }
+}
+.fx-pulse-glow {
+  animation: fx-pulse-glow 2.6s ease-in-out infinite;
+}
+
+/* letter blur-in entrance — idea #3 / #178 */
+@keyframes fx-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em) rotate(4deg);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+.fx-letter {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0;
+  animation: fx-letter-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* word highlight sweep — idea #17/#183 */
+.fx-word-highlight {
+  background: linear-gradient(90deg, rgba(var(--c2), 0.35), rgba(var(--c3), 0.25)) no-repeat 0 88% / 0% 40%;
+  transition: background-size 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fx-word-highlight.on {
+  background-size: 100% 40%;
+}
+
+/* marquee — home strip */
+@keyframes fx-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.fx-marquee-track {
+  animation: fx-marquee 28s linear infinite;
+}
+
+/* fav heart pop — idea #67/#75/#205 */
+@keyframes fx-heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.fx-heart-pop {
+  animation: fx-heart-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* shake for invalid actions — idea #216 */
+@keyframes fx-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.fx-shake {
+  animation: fx-shake 0.4s ease;
+}
+
+/* Konami party mode — idea #476 */
+.fx-party * {
+  animation: fx-party-hue 1.2s linear infinite !important;
+}
+@keyframes fx-party-hue {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* reduced motion: respect user preference everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fx-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Item } from "@/lib/types";
 import { Icon } from "@/components/icons";
 import type { Lang } from "@/lib/i18n";
+import { useFx } from "@/components/fx/fx-core";
 
 const LABELS: Record<string, { en: string; zh: string }> = {
   livePreview: { en: "Live Preview", zh: "实时预览" },
@@ -50,9 +51,10 @@ function CopyButton({
   lang?: Lang;
 }) {
   const [copied, setCopied] = useState(false);
+  const fx = useFx();
   return (
     <button
-      onClick={async () => {
+      onClick={async (ev) => {
         try {
           await navigator.clipboard.writeText(text);
         } catch {
@@ -66,6 +68,10 @@ function CopyButton({
         if (trackSlug)
           fetch(`/api/copy?slug=${encodeURIComponent(trackSlug)}`, { method: "POST" }).catch(() => {});
         setCopied(true);
+        fx.play("copy");
+        const r = ev.currentTarget.getBoundingClientRect();
+        fx.burst(r.left + r.width / 2, r.top + r.height / 2, { kind: "spark", count: 10, size: 2.4 });
+        fx.toast(lang === "zh" ? "已复制，去 AI 工具粘贴 ✦" : "Copied — paste it into your AI tool ✦");
         setTimeout(() => setCopied(false), 1800);
       }}
       className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${

@@ -3,6 +3,8 @@ import { Item } from "@/lib/types";
 import { CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
 import { Icon } from "./icons";
 import FavButton from "./FavButton";
+import TiltCard from "./fx/TiltCard";
+import QuickCopy from "./fx/QuickCopy";
 import type { Lang } from "@/lib/i18n";
 
 function fmt(n: number) {
@@ -12,8 +14,8 @@ function fmt(n: number) {
 export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lang }) {
   const cat = CATEGORY_MAP[item.category];
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-all duration-300 hover:-translate-y-1.5 hover:border-fuchsia-400/40 hover:shadow-[0_28px_70px_-28px_rgba(139,92,246,0.55)]">
-      <Link href={`/item/${item.slug}`} className="flex flex-1 flex-col">
+    <TiltCard className="group fx-border-glow relative h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-[border-color,box-shadow] duration-300 hover:border-fuchsia-400/40 hover:shadow-[0_28px_70px_-28px_rgba(139,92,246,0.55)]">
+      <Link href={`/item/${item.slug}`} className="flex h-full flex-col">
         {/* Live thumbnail */}
         <div className="relative aspect-[16/10] overflow-hidden border-b border-white/[0.07] bg-[#0a0a18]">
           <iframe
@@ -25,7 +27,7 @@ export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lan
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#070711] via-transparent to-transparent" />
           {item.featured && (
-            <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-lg">
+            <span className="fx-float absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-lg">
               <Icon name="star" className="h-3 w-3" /> {lang === "zh" ? "精选" : "Featured"}
             </span>
           )}
@@ -78,9 +80,11 @@ export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lan
           </div>
         </div>
       </Link>
-      <div className="absolute bottom-3 right-3 z-20 translate-y-2 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+      {/* hover action cluster */}
+      <div className="absolute bottom-3 right-3 z-20 flex translate-y-2 items-center gap-1.5 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        <QuickCopy prompt={item.prompt} slug={item.slug} lang={lang} />
         <FavButton slug={item.slug} lang={lang} className="!h-8 !w-8 backdrop-blur" />
       </div>
-    </div>
+    </TiltCard>
   );
 }

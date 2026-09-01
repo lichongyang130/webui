@@ -182,9 +182,14 @@ export default function VaultBrowser({
           </button>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((item) => (
-            <ItemCard key={item.id} item={item} lang={lang} />
+        <div
+          key={`${q}|${sort}|${tech}|${activeTag}`}
+          className="fx-grid-in grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
+          {filtered.map((item, i) => (
+            <div key={item.id} className="fx-grid-item" style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }}>
+              <ItemCard item={item} lang={lang} />
+            </div>
           ))}
         </div>
       )}

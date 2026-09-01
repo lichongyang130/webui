@@ -6,6 +6,7 @@ import { CATEGORIES, TECH_LABELS } from "@/lib/categories";
 import type { Lang } from "@/lib/i18n";
 import { Icon } from "@/components/icons";
 import type { Tech, CategorySlug } from "@/lib/types";
+import { useFx } from "@/components/fx/fx-core";
 
 const TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
@@ -31,6 +32,7 @@ export default function SubmitForm({ lang }: { lang: Lang }) {
   const [preview, setPreview] = useState(true);
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [err, setErr] = useState("");
+  const fx = useFx();
 
   function toggleTech(t: Tech) {
     setTech((list) => (list.includes(t) ? list.filter((x) => x !== t) : [...list, t]));
@@ -60,8 +62,11 @@ export default function SubmitForm({ lang }: { lang: Lang }) {
         prompt,
       }),
     });
-    if (res.ok) setState("done");
-    else {
+    if (res.ok) {
+      setState("done");
+      fx.confetti(220);
+      fx.play("success");
+    } else {
       const data = await res.json().catch(() => ({}));
       setErr(data.error ?? "Submission failed.");
       setState("error");
