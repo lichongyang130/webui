@@ -30,7 +30,7 @@ export default function FxMenu({ lang }: { lang: "en" | "zh" }) {
       className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs text-white/75 transition hover:bg-white/5"
     >
       {label}
-      <span className={`relative h-4.5 w-8 rounded-full transition ${settings[k] ? "bg-fuchsia-500/80" : "bg-white/15"}`} style={{ height: 18, width: 32 }}>
+      <span className={`relative h-[18px] w-8 rounded-full transition ${settings[k] ? "bg-fuchsia-500/80" : "bg-white/15"}`}>
         <span
           className="absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white transition-all"
           style={{ left: settings[k] ? 16 : 2, height: 14, width: 14 }}

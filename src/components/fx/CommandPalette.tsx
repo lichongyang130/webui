@@ -172,7 +172,7 @@ export default function CommandPalette({ lang }: { lang: "en" | "zh" }) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d1e]/95 shadow-[0_40px_120px_-20px_rgba(139,92,246,0.5)] backdrop-blur-2xl">
         <div className="flex items-center gap-3 border-b border-white/10 px-4">
-          <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 text-white/40" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg viewBox="0 0 24 24" className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
           </svg>

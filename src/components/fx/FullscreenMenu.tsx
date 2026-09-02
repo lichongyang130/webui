@@ -51,7 +51,7 @@ export default function FullscreenMenu({ lang }: { lang: "en" | "zh" }) {
         }}
         className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 transition hover:border-fuchsia-400/40 hover:text-white"
       >
-        <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M3 6h18M3 12h18M3 18h12" />
         </svg>
       </button>
@@ -65,7 +65,7 @@ export default function FullscreenMenu({ lang }: { lang: "en" | "zh" }) {
               onClick={() => setOpen(false)}
               className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white/70 transition hover:border-rose-400/40 hover:text-rose-300"
             >
-              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
             </button>

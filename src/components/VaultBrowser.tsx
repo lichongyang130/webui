@@ -96,7 +96,7 @@ export default function VaultBrowser({
   return (
     <div>
       {/* Search + sort bar */}
-      <div className="glass sticky top-16 z-30 -mx-2 mb-8 flex flex-wrap items-center gap-3 rounded-2xl p-3">
+      <div className="glass sticky top-[var(--header-h)] z-30 -mx-2 mb-8 flex flex-wrap items-center gap-3 rounded-2xl p-3">
         <div className="relative min-w-[220px] flex-1">
           <Icon name="search" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
           <input
@@ -232,7 +232,6 @@ export default function VaultBrowser({
       ) : (
         <div
           ref={gridRef}
-          key={`${q}|${sort}|${tech}|${activeTag}|${view}`}
           className={
             view === "grid"
               ? "fx-grid-in grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
