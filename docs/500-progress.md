@@ -332,3 +332,12 @@ Web3 DeFi 深色看板落地页 (#311) · 打字代码窗口多 Tab (#197) · �
 | 详情页 `generateMetadata` | title/description/openGraph/twitter summary_large_image；社交抓取时直接命中动态图 |
 | 坑记录 | satori 不识别 background 多层简写（改 backgroundColor+backgroundImage），Emoji 会触发 jsDelivr/Google Fonts 运行时拉字（sandbox 断网）——两者均绕开 |
 产物：item 卡 ~55KB PNG、根卡 ~82KB PNG，实时生成。
+
+## Wave P1-4 — 通知中心（v2 #261）
+
+| 项 | 内容 |
+|---|---|
+| 数据层 | `ANNOUNCEMENTS` 全局公告表（英中双语）；用户新增 `notifSeenAt` 时间线；`getNotificationFeed`（按注册时间过滤 + ≤24 条 + 常驻 welcome）；`markNotificationsSeen` |
+| API | `GET/POST /api/me/notifications`（401 未登录；POST 全部已读）|
+| UI | Header 铃铛：渐变未读角标(9+ 封顶)、下拉面板（图标/双语标题/相对时间/“全部已读”),外链可跳转,登出无渲染；60s 轮询 + focus 拉新 |
+| 验证 | 登录态 unread=1（新公告）→ mark-all → 0；未登录 401；双语 ✓ |

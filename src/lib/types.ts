@@ -75,8 +75,22 @@ export interface User {
   avatar?: string;
   /** favorite asset slugs (synced from the client's localStorage) */
   favorites?: string[];
+  /** ISO time the member last opened the notification center */
+  notifSeenAt?: string;
   createdAt: string;
   lastLoginAt: string;
+}
+
+/** A member-notification; global announcements are read-filtered per user. */
+export interface Notification {
+  id: string;
+  kind: "announce" | "reply" | "favorite" | "system";
+  title: string;
+  titleZh?: string;
+  body?: string;
+  bodyZh?: string;
+  href?: string;
+  at: string;
 }
 
 export interface DB {

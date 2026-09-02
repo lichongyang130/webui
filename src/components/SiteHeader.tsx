@@ -7,6 +7,7 @@ import { Icon } from "./icons";
 import LangSwitcher from "./LangSwitcher";
 import SearchButton from "./SearchButton";
 import UserMenu from "./UserMenu";
+import NotifBell from "./NotifBell";
 import FullscreenMenu from "./fx/FullscreenMenu";
 
 export default async function SiteHeader() {
@@ -96,6 +97,7 @@ export default async function SiteHeader() {
 
         <div className="flex items-center gap-2.5">
           <LangSwitcher lang={lang} />
+          <NotifBell zh={zh} />
           <UserMenu zh={zh} />
           <Link
             href="/favorites"

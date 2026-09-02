@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { DB, Item, Settings, AdminEvent, ItemStatus, User, AuthProvider } from "./types";
+import { DB, Item, Settings, AdminEvent, ItemStatus, User, AuthProvider, Notification } from "./types";
 import { SEED_ITEMS, DEFAULT_SETTINGS } from "./seed";
 import { REACT_SOURCES } from "./seed/react";
 
@@ -585,4 +585,79 @@ export function deleteOwnedItem(ownerId: string, id: string): boolean {
   save(db);
   logEvent("delete", `Member removed pending submission "${removed.title}"`);
   return true;
+}
+
+// -------------------------------------------------------- notification center
+/** Global announcements, newest first; members see those newer than sign-up. */
+export const ANNOUNCEMENTS: Notification[] = [
+  {
+    id: "wave27",
+    kind: "announce",
+    title: "Wave 27 dropped: decks, gauges, palettes",
+    titleZh: "Wave 27 上新：滑卡组、仪表盘、命令面板",
+    body: "8 new families × 8 palettes — 64 assets. Swipe decks, donut charts, ⌘K palettes and more.",
+    bodyZh: "8 个新家族 × 8 套调色，共 64 件：滑卡组、甜甜圈图、⌘K 面板等。",
+    href: "/explore?sort=newest",
+    at: "2026-09-02T00:30:00.000Z",
+  },
+  {
+    id: "wave26",
+    kind: "announce",
+    title: "AI chat, OTP inputs and audio players",
+    titleZh: "AI 聊天气泡、OTP 验证码、音频播放器家族上线",
+    body: "P1 content wave one: e-commerce cards, KPI dashboards, coachmarks, countdowns.",
+    bodyZh: "P1 第一批：电商卡、KPI 面板、聚光灯引导、发布倒计时等。",
+    href: "/components",
+    at: "2026-08-31T18:00:00.000Z",
+  },
+  {
+    id: "favsync",
+    kind: "announce",
+    title: "Favorites now sync to your account",
+    titleZh: "收藏现已同步到云端账号",
+    body: "Sign in on any device and your hearts follow you.",
+    bodyZh: "任意设备登录，收藏随身携带。",
+    href: "/favorites",
+    at: "2026-08-31T09:00:00.000Z",
+  },
+  {
+    id: "welcome",
+    kind: "system",
+    title: "Welcome to Motion Vault",
+    titleZh: "欢迎来到 Motion Vault",
+    body: "646 free animated assets. Hover any card to preview; click to copy the prompt or code.",
+    bodyZh: "646 件免费动效资产：悬停卡片即预览，点击即可复制提示词或代码。",
+    href: "/explore",
+    at: "2026-08-01T00:00:00.000Z",
+  },
+];
+
+export interface NotificationFeed {
+  items: (Notification & { read: boolean })[];
+  unread: number;
+}
+
+/** Announcements seen by this member: newer than sign-up, ≤ 24 shown. */
+export function getNotificationFeed(uid: string): NotificationFeed {
+  const u = load().users.find((x) => x.id === uid);
+  if (!u) return { items: [], unread: 0 };
+  const joined = u.createdAt ?? "2026-01-01T00:00:00.000Z";
+  const seenAt = u.notifSeenAt ?? joined;
+  const items = ANNOUNCEMENTS.filter((n) => n.at >= joined)
+    .slice(0, 24)
+    .map((n) => ({ ...n, read: n.at <= seenAt }));
+  // always include the welcome note
+  const welcome = ANNOUNCEMENTS.find((n) => n.id === "welcome");
+  if (welcome && !items.some((n) => n.id === "welcome"))
+    items.push({ ...welcome, read: welcome.at <= seenAt });
+  return { items, unread: items.filter((n) => !n.read).length };
+}
+
+/** Mark every current announcement as seen. */
+export function markNotificationsSeen(uid: string): void {
+  const db = load();
+  const u = db.users.find((x) => x.id === uid);
+  if (!u) return;
+  u.notifSeenAt = new Date().toISOString();
+  save(db);
 }
