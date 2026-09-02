@@ -59,11 +59,28 @@ export interface DailyStat {
   copies: number;
 }
 
+export type AuthProvider = "local" | "google" | "github";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  /** scrypt:saltHex:hashHex — only for provider "local" */
+  passwordHash?: string;
+  provider: AuthProvider;
+  /** stable id from the OAuth provider */
+  providerId?: string;
+  avatar?: string;
+  createdAt: string;
+  lastLoginAt: string;
+}
+
 export interface DB {
   items: Item[];
   settings: Settings;
   events: AdminEvent[];
   dailyStats: Record<string, { views: number; copies: number }>;
+  users: User[];
 }
 
 export interface AdminEvent {

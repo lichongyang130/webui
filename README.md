@@ -63,6 +63,27 @@ session cookie; the data layer logs every create/update/delete/login to the acti
 > ⚠ The auth is intentionally demo-grade (cookie token, credentials in the JSON store).
 > Put a real auth provider + hashed passwords in front of it before production use.
 
+## User accounts & social sign-in
+
+Public auth lives at **`/login`** and **`/register`** — email+password (scrypt-hashed,
+HMAC-signed httpOnly session cookie `mv_user`) plus **Continue with Google / GitHub**.
+
+OAuth is env-driven; copy `.env.example` → `.env.local` and fill in:
+
+| Variable | Where to get it | Callback to register |
+|---|---|---|
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google Cloud Console → APIs & Services → Credentials (Web application) | `<origin>/api/auth/oauth/google/callback` |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | github.com/settings/developers → New OAuth App | `<origin>/api/auth/oauth/github/callback` |
+| `AUTH_SECRET` | any long random string | — |
+
+If a provider's keys are missing, its button automatically runs in a labelled **demo mode**
+(signs in a demo account) so the flow stays testable in previews. OAuth state is carried in a
+short-lived httpOnly cookie (`mv_oauth_state`) and the callback verifies it before exchanging
+the code for a profile; accounts are upserted by provider id into `data/vault.json`.
+
+API: `POST /api/auth/register|login|logout` · `GET /api/auth/me` ·
+`GET /api/auth/oauth/<google|github>` (+`/callback`).
+
 ## Project layout
 
 ```

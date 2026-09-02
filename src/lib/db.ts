@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { DB, Item, Settings, AdminEvent, ItemStatus } from "./types";
+import { DB, Item, Settings, AdminEvent, ItemStatus, User, AuthProvider } from "./types";
 import { SEED_ITEMS, DEFAULT_SETTINGS } from "./seed";
 import { REACT_SOURCES } from "./seed/react";
 
@@ -33,6 +33,7 @@ function freshDB(): DB {
       },
     ],
     dailyStats: {},
+    users: [],
   };
 }
 
@@ -57,6 +58,10 @@ function migrate(db: DB) {
     changed = true;
   }
   if (!db.events) db.events = [];
+  if (!db.users) {
+    db.users = [];
+    changed = true;
+  }
   for (const item of db.items) {
     if (item.status === undefined) {
       item.status = "curated";
@@ -400,4 +405,90 @@ export function getEvents(): AdminEvent[] {
 
 export function logLogin() {
   logEvent("login", "Admin signed in");
+}
+
+// ------------------------------------------------------------- user accounts
+const normEmail = (e: string) => e.trim().toLowerCase();
+
+export function getUserById(id: string): User | undefined {
+  return load().users.find((u) => u.id === id);
+}
+
+export function findUserByEmail(email: string): User | undefined {
+  const e = normEmail(email);
+  return load().users.find((u) => u.email === e);
+}
+
+export function findUserByProvider(
+  provider: AuthProvider,
+  providerId: string
+): User | undefined {
+  return load().users.find(
+    (u) => u.provider === provider && u.providerId === providerId
+  );
+}
+
+export function createLocalUser(
+  name: string,
+  email: string,
+  passwordHash: string
+): User {
+  const db = load();
+  const user: User = {
+    id: uid("u"),
+    name: name.trim(),
+    email: normEmail(email),
+    passwordHash,
+    provider: "local",
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  };
+  db.users.push(user);
+  save(db);
+  return user;
+}
+
+/** Find-or-create an OAuth account; refreshes name/avatar/lastLogin each time. */
+export function upsertOAuthUser(
+  provider: AuthProvider,
+  providerId: string,
+  profile: { name: string; email: string; avatar?: string }
+): User {
+  const db = load();
+  let user = db.users.find(
+    (u) => u.provider === provider && u.providerId === providerId
+  );
+  const now = new Date().toISOString();
+  if (user) {
+    user.name = profile.name || user.name;
+    user.avatar = profile.avatar ?? user.avatar;
+    user.lastLoginAt = now;
+  } else {
+    user = {
+      id: uid("u"),
+      name: profile.name,
+      email: normEmail(profile.email || `${provider}.${providerId}@oauth.local`),
+      provider,
+      providerId,
+      avatar: profile.avatar,
+      createdAt: now,
+      lastLoginAt: now,
+    };
+    db.users.push(user);
+  }
+  save(db);
+  return user;
+}
+
+export function touchUserLogin(id: string) {
+  const db = load();
+  const u = db.users.find((x) => x.id === id);
+  if (u) {
+    u.lastLoginAt = new Date().toISOString();
+    save(db);
+  }
+}
+
+export function countUsers(): number {
+  return load().users.length;
 }
