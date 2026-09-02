@@ -58,7 +58,7 @@ export default function AdminShell({
                     : "text-white/55 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <Icon name={n.icon} className="h-4.5 w-4.5" />
+                <Icon name={n.icon} className="h-4 w-4" />
                 {n.label}
                 {n.href === "/admin/submissions" && pendingCount > 0 && (
                   <span className="ml-auto rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-extrabold text-black">
@@ -75,13 +75,13 @@ export default function AdminShell({
             href="/"
             className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/55 transition hover:bg-white/5 hover:text-white"
           >
-            <Icon name="external" className="h-4.5 w-4.5" /> View public site
+            <Icon name="external" className="h-4 w-4" /> View public site
           </Link>
           <button
             onClick={logout}
             className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-rose-300/80 transition hover:bg-rose-500/10 hover:text-rose-300"
           >
-            <Icon name="logout" className="h-4.5 w-4.5" /> Sign out
+            <Icon name="logout" className="h-4 w-4" /> Sign out
           </button>
           <div className="flex items-center gap-2.5 px-2 pt-2">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-cyan-400 to-violet-500 text-xs font-bold">

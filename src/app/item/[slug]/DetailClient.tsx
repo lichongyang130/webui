@@ -255,7 +255,7 @@ export default function DetailClient({
                 onClick={() => setFullscreen(false)}
                 className="ml-2 grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.05] text-white/70 transition hover:border-rose-400/50 hover:text-rose-300"
               >
-                <svg viewBox="0 0 24 24" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
@@ -295,15 +295,17 @@ export function DetailActions({ item, lang = "en" }: { item: Item; lang?: Lang }
         </a>
       )}
       <CopyButton text={item.html} label={lang === "zh" ? "复制 HTML 源码" : "Copy source HTML"} trackSlug={item.slug} className="!px-5 !py-3 !text-base" />
-      <a
-        href={item.sourceUrl ?? "#"}
-        target="_blank"
-        rel="noreferrer"
-        onClick={() => setTracked(true)}
-        className="ghost-btn !px-5 !py-3 !text-base"
-      >
-        <Icon name="external" className="h-4 w-4" /> {tracked ? (lang === "zh" ? "打开中…" : "Opening…") : lang === "zh" ? "灵感来源" : "Original site"}
-      </a>
+      {item.sourceUrl && (
+        <a
+          href={item.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          onClick={() => setTracked(true)}
+          className="ghost-btn !px-5 !py-3 !text-base"
+        >
+          <Icon name="external" className="h-4 w-4" /> {tracked ? (lang === "zh" ? "打开中…" : "Opening…") : lang === "zh" ? "灵感来源" : "Original site"}
+        </a>
+      )}
     </>
   );
 }
