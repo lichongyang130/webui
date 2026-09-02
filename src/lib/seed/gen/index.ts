@@ -7,6 +7,7 @@ import { GEN_COMPONENT_ITEMS } from "./components";
 import { GEN_ANIMATION_ITEMS } from "./animations";
 import { GEN_TEMPLATE_ITEMS } from "./templates";
 import { GEN2_ITEMS } from "./families2";
+import { GEN3_ITEMS } from "./families3";
 
 export const GEN_ITEMS: Item[] = [
   ...GEN_TEMPLATE_ITEMS,
@@ -14,4 +15,5 @@ export const GEN_ITEMS: Item[] = [
   ...GEN_ELEMENT_ITEMS,
   ...GEN_ANIMATION_ITEMS,
   ...GEN2_ITEMS,
+  ...GEN3_ITEMS,
 ];
