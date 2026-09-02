@@ -285,7 +285,7 @@
 
 ## 十三、社交分享与增长传播
 
-- [ ] **#241** OG 图动态生成（/api/og?slug=…，edge SVG → png）
+- [x] **#241** OG 图动态生成（/api/og?slug=…，edge SVG → png） ✅（已实现：全站 + 每条资产动态 OG 图）
 - [ ] **#242** Twitter Card large_image 全站补全
 - [ ] **#243** 分享到微博/微信二维码（dom-to-image 生成分享卡）
 - [ ] **#244** "把 MotionVault 徽章放到你的站点"（外链徽章素材包）

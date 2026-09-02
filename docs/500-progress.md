@@ -322,3 +322,13 @@ Web3 DeFi 深色看板落地页 (#311) · 打字代码窗口多 Tab (#197) · �
 | #84 滚动叙事 | 免手 scrub 叙事条（关键词循环点亮 + 进度珠 + 同步进度条）|
 | 动效家族 | 滑卡 Dack（LIKE/NOPE 印章、拖拽惯性、空栈回填）；团队脉冲活动流（每 3.4s 推入新事件）|
 每族 × 8 调色 = **+64 条**，总计 **646 条精选**；64/64 详情页与预览全 200，内嵌 JS 零语法错。
+
+## Wave P1-3 — 动态 OG 分享图（v2 #241）
+
+| 项 | 内容 |
+|---|---|
+| `item/[slug]/opengraph-image` | 1200×630 品牌卡：MV 渐变徽标 + 分类 pill + 大标题 + 摘要 + Stars/Views/Copies 计数 + slug 哈希三色球，node 运行时离线渲染 |
+| 根 `opengraph-image` | 站点级品牌卡（646 资产卖点条）|
+| 详情页 `generateMetadata` | title/description/openGraph/twitter summary_large_image；社交抓取时直接命中动态图 |
+| 坑记录 | satori 不识别 background 多层简写（改 backgroundColor+backgroundImage），Emoji 会触发 jsDelivr/Google Fonts 运行时拉字（sandbox 断网）——两者均绕开 |
+产物：item 卡 ~55KB PNG、根卡 ~82KB PNG，实时生成。

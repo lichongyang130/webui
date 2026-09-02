@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ItemCard from "@/components/ItemCard";
@@ -14,6 +15,23 @@ import Comments from "@/components/Comments";
 import Playground from "./Playground";
 import PrevNext from "./PrevNext";
 import { ShareBar } from "@/components/fx/ShareVote";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const item = getItemBySlug(slug);
+  if (!item) return {};
+  const cat = CATEGORY_MAP[item.category];
+  return {
+    title: `${item.title} — ${cat.name}`,
+    description: item.summary,
+    openGraph: {
+      title: `${item.title} · Motion Vault`,
+      description: item.summary,
+      type: "article",
+    },
+    twitter: { card: "summary_large_image", title: item.title, description: item.summary },
+  };
+}
 
 export default async function ItemDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
