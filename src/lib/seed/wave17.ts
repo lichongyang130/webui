@@ -220,7 +220,7 @@ export const WAVE17_ITEMS: Item[] = [
   },
   {
     id: "w17-av",
-    slug: "overlapping-avatar-stack",
+    slug: "overlapping-avatar-stack-chip",
     category: "components",
     title: "Overlapping avatar stack",
     summary: "Initials avatars overlap with negative margin; hovering lifts and enlarges one above the rest, +N chip at the end.",

@@ -62,6 +62,12 @@ function migrate(db: DB) {
       item.status = "curated";
       changed = true;
     }
+    // Fix historical duplicate slug: the w17 avatar-stack component shared the
+    // slug of the el-avatars element, which shadowed one of them at /item/[slug].
+    if (item.id === "w17-av" && item.slug === "overlapping-avatar-stack") {
+      item.slug = "overlapping-avatar-stack-chip";
+      changed = true;
+    }
     // Backfill React sources for items shipped with one.
     if (!item.react && REACT_SOURCES[item.slug]) {
       item.react = REACT_SOURCES[item.slug];

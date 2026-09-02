@@ -5,10 +5,12 @@
 
 | Vault | Inspired by | What's inside |
 |---|---|---|
-| **Site Templates** (`/templates`) | Motion Sites | 9 complete animated landing pages, each with a copy-paste AI prompt |
-| **Components** (`/components`) | React Bits + Aceternity UI | 16 advanced animated components (3D gallery, glow cards, tilt, starfield…) |
-| **UI Elements** (`/elements`) | Uiverse | 17 micro-elements (buttons, loaders, toggles, inputs, skeletons…) |
-| **Animations** (`/animations`) | Anime.js | 12 motion snippets (spring physics, drag-fling, scroll parallax, stagger…) |
+| **Site Templates** (`/templates`) | Motion Sites | 50 complete animated landing pages (8 industries × 5+ visual styles), each with a copy-paste AI prompt |
+| **Components** (`/components`) | React Bits + Aceternity UI | 173 advanced animated components (3D cards, glass navbars, modals, carousels, dropdowns…) |
+| **UI Elements** (`/elements`) | Uiverse | 145 micro-elements (buttons, loaders, toggles, inputs, badges, ratings…), 12 palette variants |
+| **Animations** (`/animations`) | Anime.js | 150 motion snippets (particle fields, confetti, sine waves, scramble text, magnetic hover…)**518 assets total.** Wave 25+ content is generated from a family × palette system
+(`src/lib/seed/gen/`): each design family renders once per curated palette, so every variant is a
+real, working preview with its own AI prompt — add a family once and get 8+ color stories for free.
 
 Every asset ships with:
 
