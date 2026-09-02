@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import VaultBrowser from "@/components/VaultBrowser";
 import { Icon } from "@/components/icons";
 import { CATEGORIES, CATEGORY_MAP } from "@/lib/categories";
-import { getItems } from "@/lib/db";
+import { getItems, toCardItem } from "@/lib/db";
 import { getLang } from "@/lib/i18n";
 
 export function generateStaticParams() {
@@ -25,7 +25,7 @@ export default async function CategoryPage({
   const cat = CATEGORY_MAP[category];
   if (!cat) notFound();
 
-  const items = getItems({ category: cat.slug });
+  const items = getItems({ category: cat.slug }).map(toCardItem);
 
   return (
     <div className="min-h-screen">

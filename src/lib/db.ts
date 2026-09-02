@@ -145,6 +145,12 @@ function bumpStat(kind: "views" | "copies") {
 }
 
 // ------------------------------------------------------------- public reads
+/** Strip heavy blobs (html/prompt/react) from items used in card listings —
+ *  previews come from /r/<slug>/preview.html and prompts from /api/prompt (#48). */
+export function toCardItem(i: Item): Item {
+  return { ...i, html: "", prompt: "", react: i.react ? "tsx" : undefined };
+}
+
 export interface ItemQuery {
   category?: string;
   q?: string;
@@ -494,6 +500,35 @@ export function touchUserLogin(id: string) {
 
 export function countUsers(): number {
   return load().users.length;
+}
+
+export function getFavorites(uid: string): string[] {
+  return load().users.find((u) => u.id === uid)?.favorites ?? [];
+}
+
+/** Merge client-provided slugs into the member's server-side favorites. */
+export function syncFavorites(uid: string, slugs: string[]): string[] {
+  const db = load();
+  const u = db.users.find((x) => x.id === uid);
+  if (!u) return [];
+  const merged = [...new Set([...(u.favorites ?? []), ...slugs])];
+  u.favorites = merged;
+  save(db);
+  return merged;
+}
+
+/** Toggle one favorite; returns the new list + whether it is now on. */
+export function toggleFavorite(uid: string, slug: string): { favs: string[]; on: boolean } {
+  const db = load();
+  const u = db.users.find((x) => x.id === uid);
+  if (!u) return { favs: [], on: false };
+  const cur = new Set(u.favorites ?? []);
+  const on = !cur.has(slug);
+  if (on) cur.add(slug);
+  else cur.delete(slug);
+  u.favorites = [...cur];
+  save(db);
+  return { favs: u.favorites, on };
 }
 
 export function updateUserName(id: string, name: string): User | undefined {

@@ -5,7 +5,7 @@ import ItemCard from "@/components/ItemCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { ShareBar } from "@/components/fx/ShareVote";
-import { getItemsByOwner, getUserById } from "@/lib/db";
+import { getItemsByOwner, getUserById, toCardItem } from "@/lib/db";
 import { getLang } from "@/lib/i18n";
 import { toPublicUser } from "@/lib/userauth";
 
@@ -34,9 +34,9 @@ export default async function PublicProfilePage({
 
   const lang = await getLang();
   const zh = lang === "zh";
-  const uploads = getItemsByOwner(user.id).filter(
-    (i) => i.published && i.status !== "pending"
-  );
+  const uploads = getItemsByOwner(user.id)
+    .filter((i) => i.published && i.status !== "pending")
+    .map(toCardItem);
   const views = uploads.reduce((s, i) => s + i.views, 0);
   const copies = uploads.reduce((s, i) => s + i.copies, 0);
   const pub = toPublicUser(user);

@@ -73,6 +73,8 @@ export interface User {
   /** stable id from the OAuth provider */
   providerId?: string;
   avatar?: string;
+  /** favorite asset slugs (synced from the client's localStorage) */
+  favorites?: string[];
   createdAt: string;
   lastLoginAt: string;
 }

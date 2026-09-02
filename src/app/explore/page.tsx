@@ -1,7 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import VaultBrowser from "@/components/VaultBrowser";
-import { getItems } from "@/lib/db";
+import { getItems, toCardItem } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 
 export default async function ExplorePage({
@@ -38,7 +38,7 @@ async function ExploreBrowser({
   lang: "en" | "zh";
 }) {
   const { q = "", tag = "", tech = "" } = await searchParams;
-  const items = getItems({ q });
+  const items = getItems({ q }).map(toCardItem);
   const counts = new Map<string, number>();
   for (const it of getItems()) for (const tg of it.tags) counts.set(tg, (counts.get(tg) ?? 0) + 1);
   const trending = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([tg]) => tg);

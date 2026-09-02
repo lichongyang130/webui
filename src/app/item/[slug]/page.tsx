@@ -6,7 +6,8 @@ import ItemCard from "@/components/ItemCard";
 import FavButton from "@/components/FavButton";
 import { Icon } from "@/components/icons";
 import { CATEGORY_MAP, TECH_LABELS } from "@/lib/categories";
-import { getItems, getItemBySlug, getRelated, incrementViews } from "@/lib/db";
+import { getItems, getItemBySlug, getRelated, incrementViews, toCardItem } from "@/lib/db";
+import { scorePrompt } from "@/lib/promptscore";
 import { getLang, t } from "@/lib/i18n";
 import DetailClient, { DetailActions } from "./DetailClient";
 import Comments from "@/components/Comments";
@@ -23,7 +24,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
   const lang = await getLang();
   const zh = lang === "zh";
   const cat = CATEGORY_MAP[item.category];
-  const related = getRelated(slug, item.category, 3);
+  const related = getRelated(slug, item.category, 3).map(toCardItem);
 
   return (
     <div className="min-h-screen">
@@ -59,7 +60,7 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> LIVE
                 </span>
               </div>
-              <DetailClient item={item} lang={lang} />
+              <DetailClient item={item} lang={lang} promptScore={scorePrompt(item.prompt)} />
               <Playground html={item.html} lang={lang} />
             </div>
 

@@ -277,3 +277,14 @@ Web3 DeFi 深色看板落地页 (#311) · 打字代码窗口多 Tab (#197) · �
 | ✅ 修复 | dev/build 缓存隔离（`NEXT_DIST_DIR`）、重复 slug `overlapping-avatar-stack` 数据迁移 |
 
 **站内资源总量：518 条**（模板 50 / 组件 173 / 元素 145 / 动画 150），全部详情页、分类页 200 通过，构建零错误。
+
+## Wave P0-1 — 列表瘦身/窗口化 + 收藏云同步 + Prompt 评分（对应 v2 清单）
+
+| 项 | 内容 |
+|---|---|
+| ✅ #48/#362/#363 | 列表页瘦身：卡预览改走 `/r/[slug]/preview.html` URL（不再全量内嵌 HTML/prompt 进 RSC 载荷），`toCardItem()` 统一瘦身全站 8 个入口；VaultBrowser 60/页窗口化 + sentinel 自动加载 + 手动按钮（/explore DOM 从 518 卡→60 卡渲染上限）|
+| ✅ #166 顺手修复 | 收藏页悬浮复制 prompt 之前拿不到 HTML 载荷 → 现走 `POST /api/prompt` 按需取词并计数 |
+| ✅ #201 | 收藏云端同步：`User.favorites` + `GET/POST/PATCH /api/me/favorites`；登录即合并 localStorage⇄云端，FavButton 双写，收藏页显示"已与云端同步"徽标 |
+| ✅ #121 | Prompt 完整度评分：5 维启发式（布局/配色/动效/响应式/技术约束）→ 环形分数 + 维度芯片 + 补全建议，注入详情页 Prompt Tab |
+
+验证：文档载入 60 卡上限 ✓ / 预览路由 200 ✓ / 评分注入（例:60→basic) ✓ / 收藏 PATCH 合并、401 越权拦截、DB 落盘 ✓ / tsc + build 零错误 ✓

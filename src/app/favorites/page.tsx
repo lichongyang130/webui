@@ -1,28 +1,14 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { getItems } from "@/lib/db";
+import { getItems, toCardItem } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import FavoritesClient from "./FavoritesClient";
 
 export default async function FavoritesPage() {
   const lang = await getLang();
-  // Send only public, lightweight fields to the client.
-  const items = getItems().map((i) => ({
-    slug: i.slug,
-    title: i.title,
-    category: i.category,
-    html: i.html,
-    summary: i.summary,
-    author: i.author,
-    tags: i.tags,
-    tech: i.tech,
-    stars: i.stars,
-    views: i.views,
-    copies: i.copies,
-    featured: i.featured,
-    published: i.published,
-    react: i.react,
-  }));
+  // Send only public, lightweight fields to the client (html/prompt stripped,
+  // previews stream from /r/<slug>/preview.html — #48).
+  const items = getItems().map(toCardItem);
 
   return (
     <div className="min-h-screen">

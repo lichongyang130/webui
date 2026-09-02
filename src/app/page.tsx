@@ -5,7 +5,7 @@ import ItemCard from "@/components/ItemCard";
 import { Icon } from "@/components/icons";
 import { CATEGORIES } from "@/lib/categories";
 import { SITES } from "@/lib/sites";
-import { getItems, getStats, getSettings, getPopularTags } from "@/lib/db";
+import { getItems, getStats, getSettings, getPopularTags, toCardItem } from "@/lib/db";
 import { getLang, t } from "@/lib/i18n";
 import FxHero from "@/components/fx/FxHero";
 import { Reveal } from "@/components/fx/ScrollFx";
@@ -32,8 +32,8 @@ export default async function HomePage() {
   const stats = getStats();
   const lang = await getLang();
   const zh = lang === "zh";
-  const featured = getItems({ featured: true }).slice(0, 8);
-  const newest = getItems({ sort: "newest" }).slice(0, 4);
+  const featured = getItems({ featured: true }).slice(0, 8).map(toCardItem);
+  const newest = getItems({ sort: "newest" }).slice(0, 4).map(toCardItem);
   const tags = getPopularTags(10);
 
   return (

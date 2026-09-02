@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "./icons";
 import { LANG_LABELS } from "./lang";
 import { useFx } from "./fx/fx-core";
+import { ensureFavSync, pushFavToggle } from "./favsync";
 
 const KEY = "mv_favs";
 
@@ -23,6 +24,10 @@ export default function FavButton({ slug, lang = "en", className = "" }: { slug:
 
   useEffect(() => {
     setOn(getFavs().includes(slug));
+    ensureFavSync().then(() => setOn(getFavs().includes(slug)));
+    const read = () => setOn(getFavs().includes(slug));
+    window.addEventListener("mv-favs-changed", read);
+    return () => window.removeEventListener("mv-favs-changed", read);
   }, [slug]);
 
   function toggle(e: React.MouseEvent) {
@@ -31,6 +36,7 @@ export default function FavButton({ slug, lang = "en", className = "" }: { slug:
     const next = adding ? [...favs, slug] : favs.filter((s) => s !== slug);
     localStorage.setItem(KEY, JSON.stringify(next));
     setOn(adding);
+    pushFavToggle(slug);
     window.dispatchEvent(new Event("mv-favs-changed"));
     if (adding) {
       setPop(true);

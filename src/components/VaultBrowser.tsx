@@ -75,6 +75,30 @@ export default function VaultBrowser({
     return list.sort(sorters[sort]);
   }, [items, q, sort, tech, activeTag]);
 
+  // Client-side windowing (#48/#362): only the first PAGE cards enter the DOM;
+  // a sentinel + button reveal more — keeps huge listings fast and small.
+  const PAGE = 60;
+  const [visibleCount, setVisibleCount] = useState(PAGE);
+  useEffect(() => {
+    setVisibleCount(PAGE);
+  }, [items, q, sort, tech, activeTag, view]);
+  const shown = filtered.slice(0, visibleCount);
+  const moreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = moreRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((v) => Math.min(v + PAGE, filtered.length));
+        }
+      },
+      { rootMargin: "600px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filtered.length, visibleCount]);
+
   // Arrow-key navigation across card grid — idea #218
   useEffect(() => {
     const el = gridRef.current;
@@ -239,7 +263,7 @@ export default function VaultBrowser({
               : "fx-grid-in flex flex-col gap-3"
           }
         >
-          {filtered.map((item, i) =>
+          {shown.map((item, i) =>
             view === "grid" ? (
               <div key={item.id} className="fx-grid-item" style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }}>
                 <ItemCard item={item} lang={lang} />
@@ -248,6 +272,22 @@ export default function VaultBrowser({
               <ListRow key={item.id} item={item} lang={lang} delay={Math.min(i, 16) * 45} />
             )
           )}
+        </div>
+      )}
+
+      {visibleCount < filtered.length && (
+        <div ref={moreRef} className="mt-10 flex flex-col items-center gap-3">
+          <span className="text-xs tabular-nums text-white/35">
+            {zh
+              ? `已显示 ${shown.length} / ${filtered.length}`
+              : `Showing ${shown.length} / ${filtered.length}`}
+          </span>
+          <button
+            className="ghost-btn"
+            onClick={() => setVisibleCount((v) => Math.min(v + PAGE, filtered.length))}
+          >
+            {zh ? "加载更多" : "Load more"} ↓
+          </button>
         </div>
       )}
     </div>
@@ -264,7 +304,7 @@ function ListRow({ item, lang, delay }: { item: Item; lang: Lang; delay: number 
     >
       <div className="relative hidden h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0a0a18] sm:block">
         <iframe
-          srcDoc={item.html}
+          src={`/r/${item.slug}/preview.html`}
           title=""
           loading="lazy"
           sandbox="allow-scripts"

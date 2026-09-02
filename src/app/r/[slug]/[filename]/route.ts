@@ -7,6 +7,18 @@ export async function GET(
 ) {
   const { slug, filename } = await params;
   const item = getItemBySlug(slug);
+
+  // Card previews are served by URL so list pages never embed full HTML (#48/#363)
+  if (filename === "preview.html") {
+    if (!item) return new Response("Not found", { status: 404 });
+    return new Response(item.html, {
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+      },
+    });
+  }
+
   if (!item?.react) {
     return new Response("No React source for this item", { status: 404 });
   }
