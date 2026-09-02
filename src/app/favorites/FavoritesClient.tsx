@@ -6,12 +6,14 @@ import { Item } from "@/lib/types";
 import ItemCard from "@/components/ItemCard";
 import { Icon } from "@/components/icons";
 import Kanban from "@/components/Kanban";
+import { ensureFavSync } from "@/components/favsync";
 import type { Lang } from "@/lib/i18n";
 
 const KEY = "mv_favs";
 
 export default function FavoritesClient({ items, lang }: { items: Item[]; lang: Lang }) {
   const [favs, setFavs] = useState<string[]>([]);
+  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
     const read = () => {
@@ -22,6 +24,10 @@ export default function FavoritesClient({ items, lang }: { items: Item[]; lang: 
       }
     };
     read();
+    ensureFavSync().then((ok) => {
+      setSynced(ok);
+      read(); // merged cloud list may have landed
+    });
     window.addEventListener("mv-favs-changed", read);
     window.addEventListener("storage", read);
     return () => {
@@ -67,6 +73,11 @@ export default function FavoritesClient({ items, lang }: { items: Item[]; lang: 
 
   return (
     <>
+      {synced && (
+        <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-300">
+          ☁ {lang === "zh" ? "已与云端同步" : "Synced with your account"}
+        </p>
+      )}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {saved.map((item) => (
           <ItemCard key={item.id} item={item} lang={lang} />

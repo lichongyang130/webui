@@ -88,7 +88,7 @@ export default function ShowcaseClient({ items, lang }: { items: Item[]; lang: "
                 <Link key={item.id} href={`/item/${item.slug}`} className="group block w-[80vw] shrink-0 sm:w-[420px]">
                   <div className="fx-border-glow relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a0a18] transition-transform duration-500 hover:-translate-y-2">
                     <div className="relative h-[300px] overflow-hidden">
-                      <SmartPreview html={item.html} title={item.title} className="absolute inset-0" />
+                      <SmartPreview src={`/r/${item.slug}/preview.html`} title={item.title} className="absolute inset-0" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a18] via-transparent to-transparent" />
                       <span
                         className={`absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r ${cat.accent} px-3 py-1 text-[11px] font-bold uppercase tracking-wider`}

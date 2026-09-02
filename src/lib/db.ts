@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
-import { DB, Item, Settings, AdminEvent, ItemStatus } from "./types";
+import { DB, Item, Settings, AdminEvent, ItemStatus, User, AuthProvider } from "./types";
 import { SEED_ITEMS, DEFAULT_SETTINGS } from "./seed";
 import { REACT_SOURCES } from "./seed/react";
 
@@ -33,6 +33,7 @@ function freshDB(): DB {
       },
     ],
     dailyStats: {},
+    users: [],
   };
 }
 
@@ -57,9 +58,19 @@ function migrate(db: DB) {
     changed = true;
   }
   if (!db.events) db.events = [];
+  if (!db.users) {
+    db.users = [];
+    changed = true;
+  }
   for (const item of db.items) {
     if (item.status === undefined) {
       item.status = "curated";
+      changed = true;
+    }
+    // Fix historical duplicate slug: the w17 avatar-stack component shared the
+    // slug of the el-avatars element, which shadowed one of them at /item/[slug].
+    if (item.id === "w17-av" && item.slug === "overlapping-avatar-stack") {
+      item.slug = "overlapping-avatar-stack-chip";
       changed = true;
     }
     // Backfill React sources for items shipped with one.
@@ -134,6 +145,12 @@ function bumpStat(kind: "views" | "copies") {
 }
 
 // ------------------------------------------------------------- public reads
+/** Strip heavy blobs (html/prompt/react) from items used in card listings —
+ *  previews come from /r/<slug>/preview.html and prompts from /api/prompt (#48). */
+export function toCardItem(i: Item): Item {
+  return { ...i, html: "", prompt: "", react: i.react ? "tsx" : undefined };
+}
+
 export interface ItemQuery {
   category?: string;
   q?: string;
@@ -243,10 +260,26 @@ export function getDailyStats(days = 21): { date: string; views: number; copies:
   return out;
 }
 
-export function getPopularTags(limit = 12): { tag: string; count: number }[] {
-  const counts = new Map<string, number>();
+export function getPopularTags(limit = 12): { tag: string; count: number }[] {  const counts = new Map<string, number>();
   load()
     .items.filter((i) => i.published && i.status !== "pending")
+    .forEach((i) => i.tags.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+/** Tag counts scoped to a category (used by category browse pages). */
+export function getTagCounts(category?: string, limit = 14): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  load()
+    .items.filter(
+      (i) =>
+        i.published &&
+        i.status !== "pending" &&
+        (!category || i.category === category)
+    )
     .forEach((i) => i.tags.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
@@ -314,6 +347,8 @@ export interface SubmissionInput {
   tech: Item["tech"];
   html: string;
   prompt: string;
+  /** auth user id when a signed-in member uploads */
+  ownerId?: string;
 }
 
 export function createSubmission(input: SubmissionInput): Item {
@@ -343,6 +378,7 @@ export function createSubmission(input: SubmissionInput): Item {
     status: "pending",
     submittedBy: input.submitterEmail,
     submittedAt: now,
+    ownerId: input.ownerId,
     createdAt: now,
     updatedAt: now,
   };
@@ -394,4 +430,159 @@ export function getEvents(): AdminEvent[] {
 
 export function logLogin() {
   logEvent("login", "Admin signed in");
+}
+
+// ------------------------------------------------------------- user accounts
+const normEmail = (e: string) => e.trim().toLowerCase();
+
+export function getUserById(id: string): User | undefined {
+  return load().users.find((u) => u.id === id);
+}
+
+export function findUserByEmail(email: string): User | undefined {
+  const e = normEmail(email);
+  return load().users.find((u) => u.email === e);
+}
+
+export function findUserByProvider(
+  provider: AuthProvider,
+  providerId: string
+): User | undefined {
+  return load().users.find(
+    (u) => u.provider === provider && u.providerId === providerId
+  );
+}
+
+export function createLocalUser(
+  name: string,
+  email: string,
+  passwordHash: string
+): User {
+  const db = load();
+  const user: User = {
+    id: uid("u"),
+    name: name.trim(),
+    email: normEmail(email),
+    passwordHash,
+    provider: "local",
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  };
+  db.users.push(user);
+  save(db);
+  return user;
+}
+
+/** Find-or-create an OAuth account; refreshes name/avatar/lastLogin each time. */
+export function upsertOAuthUser(
+  provider: AuthProvider,
+  providerId: string,
+  profile: { name: string; email: string; avatar?: string }
+): User {
+  const db = load();
+  let user = db.users.find(
+    (u) => u.provider === provider && u.providerId === providerId
+  );
+  const now = new Date().toISOString();
+  if (user) {
+    user.name = profile.name || user.name;
+    user.avatar = profile.avatar ?? user.avatar;
+    user.lastLoginAt = now;
+  } else {
+    user = {
+      id: uid("u"),
+      name: profile.name,
+      email: normEmail(profile.email || `${provider}.${providerId}@oauth.local`),
+      provider,
+      providerId,
+      avatar: profile.avatar,
+      createdAt: now,
+      lastLoginAt: now,
+    };
+    db.users.push(user);
+  }
+  save(db);
+  return user;
+}
+
+export function touchUserLogin(id: string) {
+  const db = load();
+  const u = db.users.find((x) => x.id === id);
+  if (u) {
+    u.lastLoginAt = new Date().toISOString();
+    save(db);
+  }
+}
+
+export function countUsers(): number {
+  return load().users.length;
+}
+
+export function getFavorites(uid: string): string[] {
+  return load().users.find((u) => u.id === uid)?.favorites ?? [];
+}
+
+/** Merge client-provided slugs into the member's server-side favorites. */
+export function syncFavorites(uid: string, slugs: string[]): string[] {
+  const db = load();
+  const u = db.users.find((x) => x.id === uid);
+  if (!u) return [];
+  const merged = [...new Set([...(u.favorites ?? []), ...slugs])];
+  u.favorites = merged;
+  save(db);
+  return merged;
+}
+
+/** Toggle one favorite; returns the new list + whether it is now on. */
+export function toggleFavorite(uid: string, slug: string): { favs: string[]; on: boolean } {
+  const db = load();
+  const u = db.users.find((x) => x.id === uid);
+  if (!u) return { favs: [], on: false };
+  const cur = new Set(u.favorites ?? []);
+  const on = !cur.has(slug);
+  if (on) cur.add(slug);
+  else cur.delete(slug);
+  u.favorites = [...cur];
+  save(db);
+  return { favs: u.favorites, on };
+}
+
+export function updateUserName(id: string, name: string): User | undefined {
+  const db = load();
+  const u = db.users.find((x) => x.id === id);
+  if (!u) return undefined;
+  u.name = name.trim();
+  save(db);
+  return u;
+}
+
+/** Sets a new scrypt hash; only for local (email+password) accounts. */
+export function setUserPassword(id: string, passwordHash: string): boolean {
+  const db = load();
+  const u = db.users.find((x) => x.id === id && x.provider === "local");
+  if (!u) return false;
+  u.passwordHash = passwordHash;
+  save(db);
+  return true;
+}
+
+// ------------------------------------------------------------- member uploads
+export function getItemsByOwner(ownerId: string): Item[] {
+  return structuredClone(
+    load()
+      .items.filter((i) => i.ownerId === ownerId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  );
+}
+
+/** Members may delete their own submission while it is still pending review. */
+export function deleteOwnedItem(ownerId: string, id: string): boolean {
+  const db = load();
+  const idx = db.items.findIndex((i) => i.id === id && i.ownerId === ownerId);
+  if (idx === -1) return false;
+  if (db.items[idx].status !== "pending") return false;
+  const [removed] = db.items.splice(idx, 1);
+  save(db);
+  logEvent("delete", `Member removed pending submission "${removed.title}"`);
+  return true;
 }

@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import VaultBrowser from "@/components/VaultBrowser";
 import { Icon } from "@/components/icons";
 import { CATEGORIES, CATEGORY_MAP } from "@/lib/categories";
-import { getItems } from "@/lib/db";
+import { getItems, getTagCounts, toCardItem } from "@/lib/db";
 import { getLang } from "@/lib/i18n";
 
 export function generateStaticParams() {
@@ -25,7 +25,9 @@ export default async function CategoryPage({
   const cat = CATEGORY_MAP[category];
   if (!cat) notFound();
 
-  const items = getItems({ category: cat.slug });
+  const all = getItems({ category: cat.slug, tag, tech });
+  const items = all.slice(0, 48).map(toCardItem);
+  const tagCounts = getTagCounts(cat.slug, 14);
 
   return (
     <div className="min-h-screen">
@@ -60,7 +62,15 @@ export default async function CategoryPage({
           </div>
         </header>
 
-        <VaultBrowser items={items} activeCategory={cat.slug} initialTag={tag} initialTech={tech} lang={lang} />
+        <VaultBrowser
+          initialItems={items}
+          total={all.length}
+          allTags={tagCounts}
+          activeCategory={cat.slug}
+          initialTag={tag}
+          initialTech={tech}
+          lang={lang}
+        />
       </main>
       <SiteFooter />
     </div>

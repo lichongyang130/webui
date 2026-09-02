@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Item } from "@/lib/types";
 import { Icon } from "@/components/icons";
+import PromptScoreCard from "@/components/PromptScoreCard";
+import type { PromptScore } from "@/lib/promptscore";
 import type { Lang } from "@/lib/i18n";
 import { useFx } from "@/components/fx/fx-core";
 
@@ -90,9 +92,11 @@ function CopyButton({
 export default function DetailClient({
   item,
   lang = "en",
+  promptScore,
 }: {
   item: Item;
   lang?: Lang;
+  promptScore?: PromptScore;
 }) {
   const [tab, setTab] = useState<"preview" | "source" | "react" | "prompt">("preview");
   const [mode, setMode] = useState<"dark" | "light">("dark");
@@ -221,6 +225,11 @@ export default function DetailClient({
 
       {tab === "prompt" && (
         <div className="max-h-[560px] overflow-auto bg-gradient-to-br from-violet-950/40 to-fuchsia-950/20 p-6">
+          {promptScore && (
+            <div className="mb-4">
+              <PromptScoreCard score={promptScore} zh={lang === "zh"} />
+            </div>
+          )}
           <div className="mb-4 flex items-start gap-3 rounded-2xl border border-fuchsia-400/25 bg-fuchsia-500/[0.08] p-4">
             <Icon name="bolt" className="mt-0.5 h-5 w-5 shrink-0 text-fuchsia-300" />
             <p className="text-[13px] leading-relaxed text-fuchsia-100/80">{L("promptTip")}</p>

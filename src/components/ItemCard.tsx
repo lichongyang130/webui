@@ -19,7 +19,7 @@ export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lan
       <Link href={`/item/${item.slug}`} className="flex h-full flex-col">
         {/* Live thumbnail */}
         <div className="relative aspect-[16/10] overflow-hidden border-b border-white/[0.07] bg-[#0a0a18]">
-          <SmartPreview html={item.html} title={item.title} className="absolute inset-0" />
+          <SmartPreview src={`/r/${item.slug}/preview.html`} title={item.title} className="absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#070711] via-transparent to-transparent" />
           {item.featured && (
             <span className="fx-float absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-lg">
@@ -77,7 +77,7 @@ export default function ItemCard({ item, lang = "en" }: { item: Item; lang?: Lan
       </Link>
       {/* hover action cluster */}
       <div className="absolute bottom-3 right-3 z-20 flex translate-y-2 items-center gap-1.5 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-        <QuickCopy prompt={item.prompt} slug={item.slug} lang={lang} />
+        <QuickCopy slug={item.slug} lang={lang} />
         <FavButton slug={item.slug} lang={lang} className="!h-8 !w-8 backdrop-blur" />
       </div>
     </TiltCard>

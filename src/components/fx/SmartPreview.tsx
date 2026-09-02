@@ -8,12 +8,16 @@ import { useEffect, useRef, useState } from "react";
  */
 export default function SmartPreview({
   html,
+  src,
   title,
   className = "",
   style,
   scaled = true,
 }: {
-  html: string;
+  /** inline document — used when the full HTML is already on the page */
+  html?: string;
+  /** URL-backed preview — used by cards so list pages stay light (#48/#363) */
+  src?: string;
   title: string;
   className?: string;
   style?: React.CSSProperties;
@@ -46,7 +50,7 @@ export default function SmartPreview({
     <div ref={ref} className={`relative overflow-hidden ${className}`} style={style}>
       {show ? (
         <iframe
-          srcDoc={html}
+          {...(src ? { src } : { srcDoc: html })}
           title={title}
           loading="lazy"
           sandbox="allow-scripts"

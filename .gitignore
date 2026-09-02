@@ -6,6 +6,7 @@ data/*.db-journal
 data/vault.json
 data/comments.json
 .env*
+!.env.example
 .DS_Store
 *.tsbuildinfo
 /tmp/

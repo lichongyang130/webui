@@ -5,10 +5,12 @@
 
 | Vault | Inspired by | What's inside |
 |---|---|---|
-| **Site Templates** (`/templates`) | Motion Sites | 9 complete animated landing pages, each with a copy-paste AI prompt |
-| **Components** (`/components`) | React Bits + Aceternity UI | 16 advanced animated components (3D gallery, glow cards, tilt, starfield…) |
-| **UI Elements** (`/elements`) | Uiverse | 17 micro-elements (buttons, loaders, toggles, inputs, skeletons…) |
-| **Animations** (`/animations`) | Anime.js | 12 motion snippets (spring physics, drag-fling, scroll parallax, stagger…) |
+| **Site Templates** (`/templates`) | Motion Sites | 50 complete animated landing pages (8 industries × 4+ visual styles), each with a copy-paste AI prompt |
+| **Components** (`/components`) | React Bits + Aceternity UI | 253 advanced animated components (3D cards, glass navbars, modals, carousels, dropdowns…) |
+| **UI Elements** (`/elements`) | Uiverse | 178 micro-elements (buttons, loaders, toggles, inputs, badges, ratings…), 12 palette variants |
+| **Animations** (`/animations`) | Anime.js | 166 motion snippets (particle fields, confetti, sine waves, scramble text, magnetic hover…)**646 assets total.** Wave 25+ content is generated from a family × palette system
+(`src/lib/seed/gen/`): each design family renders once per curated palette, so every variant is a
+real, working preview with its own AI prompt — add a family once and get 8+ color stories for free.
 
 Every asset ships with:
 
@@ -60,6 +62,45 @@ session cookie; the data layer logs every create/update/delete/login to the acti
 
 > ⚠ The auth is intentionally demo-grade (cookie token, credentials in the JSON store).
 > Put a real auth provider + hashed passwords in front of it before production use.
+
+## User accounts & social sign-in
+
+Public auth lives at **`/login`** and **`/register`** — email+password (scrypt-hashed,
+HMAC-signed httpOnly session cookie `mv_user`) plus **Continue with Google / GitHub**.
+
+OAuth is env-driven; copy `.env.example` → `.env.local` and fill in:
+
+| Variable | Where to get it | Callback to register |
+|---|---|---|
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google Cloud Console → APIs & Services → Credentials (Web application) | `<origin>/api/auth/oauth/google/callback` |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | github.com/settings/developers → New OAuth App | `<origin>/api/auth/oauth/github/callback` |
+| `AUTH_SECRET` | any long random string | — |
+
+If a provider's keys are missing, its button automatically runs in a labelled **demo mode**
+(signs in a demo account) so the flow stays testable in previews. OAuth state is carried in a
+short-lived httpOnly cookie (`mv_oauth_state`) and the callback verifies it before exchanging
+the code for a profile; accounts are upserted by provider id into `data/vault.json`.
+
+API: `POST /api/auth/register|login|logout` · `GET /api/auth/me` ·
+`GET /api/auth/oauth/<google|github>` (+`/callback`).
+
+## Member center (`/me`)
+
+Signed-in members get a dashboard at **`/me`** (linked from the header avatar menu):
+
+- **Profile card** — avatar, provider badge, joined date, upload stats (total / in review / live)
+- **Upload content** — title, category, tags, tech picks, AI prompt and the self-contained
+  preview HTML with a **live sandboxed preview** as you type; submissions enter the same
+  admin review queue (`/admin/submissions`) and go public once approved
+- **My uploads + share** — per-item preview modal, detail link, and share tools
+  (copy link / X intent / Markdown snippet); pending submissions can be withdrawn
+- **Public profile `/u/<id>`** — shareable page with member stats and all their live
+  uploads (pending items stay hidden); item detail pages link the author name to it
+- **Settings** — rename (reflected everywhere) and password change for email accounts
+  (OAuth accounts are told their password lives at the provider)
+
+API: `POST /api/me/upload` · `GET /api/me/overview` · `DELETE /api/me/items/<id>`
+(all require the user session; members can only touch their own pending items).
 
 ## Project layout
 
