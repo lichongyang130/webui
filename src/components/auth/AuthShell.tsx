@@ -1,7 +1,18 @@
 import Link from "next/link";
-import { ReactNode } from "react";
 import AuthForm from "./AuthForm";
 import SocialButtons from "./SocialButtons";
+
+function Divider({ zh }: { zh: boolean }) {
+  return (
+    <div className="my-6 flex w-full items-center gap-3">
+      <span className="h-px flex-1 bg-white/[0.09]" />
+      <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/30">
+        {zh ? "或使用邮箱" : "or with email"}
+      </span>
+      <span className="h-px flex-1 bg-white/[0.09]" />
+    </div>
+  );
+}
 
 /** Shared glass-card shell for /login and /register. */
 export default function AuthShell({
@@ -18,28 +29,32 @@ export default function AuthShell({
   demo: { google: boolean; github: boolean };
 }) {
   const isLogin = mode === "login";
+  const swap = isLogin ? "/register" : "/login";
+  const swapHref = next !== "/" ? `${swap}?next=${encodeURIComponent(next)}` : swap;
+
   return (
-    <main className="relative grid min-h-[calc(100vh-4rem)] place-items-center overflow-hidden px-4 py-14">
+    <main className="bg-grid relative grid min-h-[calc(100svh-64px)] place-items-center overflow-hidden px-4 py-12">
       {/* ambient glows */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-violet-600/20 blur-[120px]"
+        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[36rem] -translate-x-1/2 rounded-full bg-violet-600/[0.16] blur-[110px]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 right-[-10%] h-96 w-96 rounded-full bg-fuchsia-600/15 blur-[110px]"
+        className="pointer-events-none absolute -bottom-44 right-[-8%] h-80 w-80 rounded-full bg-cyan-500/[0.1] blur-[100px]"
       />
 
-      <div className="relative w-full max-w-md">
-        <div className="fx-border-glow rounded-3xl border border-white/10 bg-[#0b0b1a]/85 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
-          <Link href="/" className="mb-8 flex items-center justify-center gap-2.5">
-            <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-xl shadow-[0_8px_24px_-6px_rgba(217,70,239,0.7)]">
+      <div className="relative w-full max-w-[400px]">
+        <div className="rounded-2xl border border-white/10 bg-[#0c0c1d]/90 p-7 shadow-2xl backdrop-blur-xl sm:p-8">
+          {/* brand */}
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 text-[15px] text-white shadow-[0_6px_18px_-4px_rgba(217,70,239,0.7)]">
               ✦
             </span>
-            <span className="text-xl font-extrabold tracking-tight">MotionVault</span>
-          </Link>
+            <span className="text-[17px] font-extrabold tracking-tight">MotionVault</span>
+          </div>
 
-          <h1 className="text-center text-2xl font-extrabold tracking-tight">
+          <h1 className="text-center text-[21px] font-extrabold leading-tight tracking-tight">
             {isLogin
               ? zh
                 ? "欢迎回来"
@@ -48,67 +63,47 @@ export default function AuthShell({
                 ? "创建你的账号"
                 : "Create your account"}
           </h1>
-          <p className="mt-2 text-center text-sm text-white/45">
+          <p className="mt-1.5 text-center text-[13px] leading-relaxed text-white/40">
             {isLogin
               ? zh
-                ? "登录以同步收藏、投稿和更多功能"
-                : "Sign in to sync favorites, submissions and more"
+                ? "登录后同步收藏、投稿与更多功能"
+                : "Sign in to sync favorites, submissions & more"
               : zh
-                ? "注册以同步收藏、投稿和更多功能"
-                : "Sign up to sync favorites, submissions and more"}
+                ? "注册后同步收藏、投稿与更多功能"
+                : "Sign up to sync favorites, submissions & more"}
           </p>
 
-          <div className="mt-7">
+          {/* social */}
+          <div className="mt-6">
             <SocialButtons demo={demo} zh={zh} />
           </div>
-
           {(demo.google || demo.github) && (
-            <p className="mt-3 rounded-lg bg-white/[0.04] px-3 py-2 text-center text-[11.5px] leading-relaxed text-white/40">
+            <p className="mt-2.5 text-center font-mono text-[10px] leading-relaxed text-white/30">
               {zh
-                ? "预览环境未配置 OAuth 密钥：标记 demo 的按钮会以演示账号登录。配置 GOOGLE_CLIENT_ID / GITHUB_CLIENT_ID 等环境变量后即为真实授权流程。"
-                : "OAuth keys are not configured in this preview: demo-tagged buttons sign you in with a demo account. Set GOOGLE_CLIENT_ID / GITHUB_CLIENT_ID etc. for the real flow."}
+                ? "演示模式：未配置 OAuth 密钥，社交按钮将以演示账号登录"
+                : "Demo mode: no OAuth keys set — social buttons sign in a demo account"}
             </p>
           )}
 
-          <div className="my-6 flex items-center gap-4">
-            <span className="h-px flex-1 bg-white/10" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/30">
-              {zh ? "或使用邮箱" : "or with email"}
-            </span>
-            <span className="h-px flex-1 bg-white/10" />
-          </div>
+          <Divider zh={zh} />
 
           <AuthForm mode={mode} zh={zh} next={next} initialError={error} />
 
-          <p className="mt-7 text-center text-sm text-white/45">
-            {isLogin ? (
-              <>
-                {zh ? "还没有账号？" : "No account yet?"}{" "}
-                <Link
-                  href={`/register${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
-                  className="font-bold text-fuchsia-300 transition hover:text-fuchsia-200"
-                >
-                  {zh ? "免费注册" : "Sign up free"}
-                </Link>
-              </>
-            ) : (
-              <>
-                {zh ? "已有账号？" : "Already have an account?"}{" "}
-                <Link
-                  href={`/login${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
-                  className="font-bold text-fuchsia-300 transition hover:text-fuchsia-200"
-                >
-                  {zh ? "直接登录" : "Sign in"}
-                </Link>
-              </>
-            )}
+          <p className="mt-6 text-center text-[13px] text-white/40">
+            {isLogin ? (zh ? "还没有账号？" : "No account yet?") : zh ? "已有账号？" : "Have an account?"}{" "}
+            <Link
+              href={swapHref}
+              className="font-bold text-fuchsia-300 transition hover:text-fuchsia-200"
+            >
+              {isLogin ? (zh ? "免费注册" : "Sign up free") : zh ? "直接登录" : "Sign in"}
+            </Link>
           </p>
         </div>
 
-        <p className="mt-5 text-center text-[11px] text-white/25">
+        <p className="mt-4 text-center text-[10.5px] leading-relaxed text-white/20">
           {zh
-            ? "继续即代表你同意本站的使用条款与隐私政策。"
-            : "By continuing you agree to the Terms of Service and Privacy Policy."}
+            ? "继续即代表你同意本站的使用条款与隐私政策"
+            : "By continuing you agree to the Terms & Privacy Policy"}
         </p>
       </div>
     </main>

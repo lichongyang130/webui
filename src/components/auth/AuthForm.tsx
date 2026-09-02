@@ -4,6 +4,21 @@ import { FormEvent, useState } from "react";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function Field({
+  label,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className="grid gap-1.5">
+      <span className="text-xs font-semibold text-white/55">{label}</span>
+      <input
+        {...props}
+        className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/20 focus:border-violet-400/60 focus:bg-violet-500/[0.06] focus:ring-4 focus:ring-violet-500/10"
+      />
+    </label>
+  );
+}
+
 export default function AuthForm({
   mode,
   zh,
@@ -66,42 +81,39 @@ export default function AuthForm({
     }
   }
 
-  const inputCls =
-    "w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none transition focus:border-violet-400/60 focus:ring-4 focus:ring-violet-500/15";
-
   return (
-    <form onSubmit={onSubmit} className="grid gap-3.5">
+    <form onSubmit={onSubmit} className="grid w-full gap-3.5">
       {!isLogin && (
-        <input
-          className={inputCls}
-          placeholder={zh ? "昵称（如：Aria）" : "Display name (e.g. Aria)"}
+        <Field
+          label={zh ? "昵称" : "Display name"}
+          placeholder={zh ? "想让我们怎么称呼你？" : "How should we call you?"}
           value={name}
           onChange={(e) => setName(e.target.value)}
           autoComplete="name"
           maxLength={40}
         />
       )}
-      <input
-        className={inputCls}
+      <Field
+        label={zh ? "邮箱" : "Email"}
         type="email"
-        placeholder={zh ? "邮箱地址" : "Email address"}
+        placeholder="you@example.com"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
       />
-      <input
-        className={inputCls}
+      <Field
+        label={zh ? "密码" : "Password"}
         type="password"
-        placeholder={zh ? "密码（至少 8 位）" : "Password (min. 8 chars)"}
+        placeholder={zh ? "至少 8 位字符" : "8+ characters"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         autoComplete={isLogin ? "current-password" : "new-password"}
       />
       {!isLogin && (
-        <input
-          className={inputCls}
+        <Field
+          label={zh ? "确认密码" : "Confirm password"}
           type="password"
-          placeholder={zh ? "确认密码" : "Confirm password"}
+          placeholder={zh ? "再输入一次" : "Type it again"}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
           autoComplete="new-password"
@@ -109,15 +121,16 @@ export default function AuthForm({
       )}
 
       {error && (
-        <div className="rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-[13px] text-rose-300">
-          {error}
+        <div className="flex items-start gap-2 rounded-xl border border-rose-400/25 bg-rose-500/10 px-3.5 py-2.5 text-[13px] leading-snug text-rose-300">
+          <span aria-hidden>⚠</span>
+          <span>{error}</span>
         </div>
       )}
 
       <button
         type="submit"
         disabled={busy}
-        className="mt-1 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 px-4 py-3.5 text-sm font-extrabold text-white shadow-[0_14px_36px_-10px_rgba(217,70,239,0.7)] transition hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+        className="grad-btn mt-1.5 h-11 w-full !py-0 font-bold disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy
           ? zh
