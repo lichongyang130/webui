@@ -35,7 +35,7 @@ export default function MemberCenter({
   zh: boolean;
 }) {
   const router = useRouter();
-  const [tab, setTab] = useState<"upload" | "uploads">("upload");
+  const [tab, setTab] = useState<"upload" | "uploads" | "settings">("upload");
   const [preview, setPreview] = useState<MemberItem | null>(null);
   const [notice, setNotice] = useState("");
 
@@ -122,6 +122,22 @@ export default function MemberCenter({
             {zh ? "注册于" : "Joined"} {new Date(user.createdAt).toLocaleDateString(zh ? "zh-CN" : "en-US")}
           </p>
         </div>
+
+        {/* public profile share */}
+        <div className="glass mt-4 rounded-2xl p-4">
+          <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-white/35">
+            {zh ? "公开主页" : "Public profile"}
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="min-w-0 flex-1 truncate rounded-lg border border-white/10 bg-black/30 px-2.5 py-2 font-mono text-[11px] text-cyan-200/80">
+              /u/{user.id}
+            </code>
+            <Link href={`/u/${user.id}`} className="ghost-btn !rounded-lg !px-2.5 !py-2 !text-[11px]">
+              ↗
+            </Link>
+            <CopyProfileButton id={user.id} zh={zh} />
+          </div>
+        </div>
       </aside>
 
       {/* ── main column ──────────────────────────────────────────── */}
@@ -132,6 +148,7 @@ export default function MemberCenter({
             [
               ["upload", zh ? "⬆ 上传内容" : "⬆ Upload"],
               ["uploads", `${zh ? "📦 我的上传" : "📦 My uploads"} (${items.length})`],
+              ["settings", zh ? "⚙️ 账号设置" : "⚙️ Settings"],
             ] as const
           ).map(([key, label]) => (
             <button
@@ -153,7 +170,7 @@ export default function MemberCenter({
           )}
         </div>
 
-        {tab === "upload" ? (
+        {tab === "upload" && (
           <UploadForm
             zh={zh}
             onDone={() => {
@@ -162,8 +179,12 @@ export default function MemberCenter({
               router.refresh();
             }}
           />
-        ) : (
+        )}
+        {tab === "uploads" && (
           <UploadList items={items} zh={zh} onDelete={removeItem} onPreview={setPreview} onFlash={flash} />
+        )}
+        {tab === "settings" && (
+          <SettingsPanel user={user} zh={zh} onFlash={flash} onChanged={() => router.refresh()} />
         )}
       </section>
 
@@ -520,6 +541,153 @@ function UploadList({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* ═══════════════════════ public profile copy ═══════════════════════ */
+
+function CopyProfileButton({ id, zh }: { id: string; zh: boolean }) {
+  const [done, setDone] = useState(false);
+  return (
+    <button
+      type="button"
+      title={zh ? "复制主页链接" : "Copy profile link"}
+      className="ghost-btn !rounded-lg !px-2.5 !py-2 !text-[11px]"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(`${window.location.origin}/u/${id}`);
+          setDone(true);
+          setTimeout(() => setDone(false), 1600);
+        } catch {
+          /* clipboard blocked */
+        }
+      }}
+    >
+      {done ? "✓" : "⧉"}
+    </button>
+  );
+}
+
+/* ═══════════════════════════ settings panel ═══════════════════════════ */
+
+function SettingsPanel({
+  user,
+  zh,
+  onFlash,
+  onChanged,
+}: {
+  user: PublicUser;
+  zh: boolean;
+  onFlash: (msg: string) => void;
+  onChanged: () => void;
+}) {
+  const [name, setName] = useState(user.name);
+  const [p1, setP1] = useState("");
+  const [p2, setP2] = useState("");
+  const [p3, setP3] = useState("");
+  const [busyName, setBusyName] = useState(false);
+  const [busyPass, setBusyPass] = useState(false);
+  const [errName, setErrName] = useState("");
+  const [errPass, setErrPass] = useState("");
+
+  async function saveName() {
+    setErrName("");
+    const n = name.trim();
+    if (n.length < 2 || n.length > 40) {
+      return setErrName(zh ? "昵称长度需为 2-40 个字符" : "Name must be 2-40 characters");
+    }
+    setBusyName(true);
+    const res = await fetch("/api/me/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: n }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusyName(false);
+    if (!res.ok) return setErrName(data.error || (zh ? "保存失败" : "Save failed"));
+    onFlash(zh ? "昵称已更新" : "Name updated");
+    onChanged();
+  }
+
+  async function savePassword() {
+    setErrPass("");
+    if (p2.length < 8) return setErrPass(zh ? "新密码至少 8 位" : "New password needs 8+ chars");
+    if (p2 !== p3) return setErrPass(zh ? "两次输入的新密码不一致" : "New passwords do not match");
+    setBusyPass(true);
+    const res = await fetch("/api/me/password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword: p1, newPassword: p2 }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusyPass(false);
+    if (!res.ok) return setErrPass(data.error || (zh ? "修改失败" : "Change failed"));
+    setP1(""); setP2(""); setP3("");
+    onFlash(zh ? "密码已更新" : "Password updated");
+  }
+
+  const inputCls = "input-dark !py-2.5";
+  const labelCls = "mb-1.5 block text-xs font-bold text-white/55";
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-2">
+      {/* display name */}
+      <div className="glass rounded-2xl p-6">
+        <h3 className="text-sm font-extrabold">{zh ? "公开昵称" : "Display name"}</h3>
+        <p className="mt-1 text-xs leading-relaxed text-white/40">
+          {zh ? "会显示在你的公开主页和作品署名上。" : "Shown on your public profile and upload credits."}
+        </p>
+        <div className="mt-4">
+          <label className={labelCls}>{zh ? "昵称" : "Name"}</label>
+          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} maxLength={40} />
+        </div>
+        {errName && <p className="mt-3 text-[12.5px] text-rose-300">{errName}</p>}
+        <button
+          onClick={saveName}
+          disabled={busyName}
+          className="grad-btn mt-4 w-full !py-2.5 text-sm font-bold disabled:opacity-60"
+        >
+          {busyName ? (zh ? "保存中…" : "Saving…") : zh ? "保存昵称" : "Save name"}
+        </button>
+      </div>
+
+      {/* password */}
+      <div className="glass rounded-2xl p-6">
+        <h3 className="text-sm font-extrabold">{zh ? "修改密码" : "Change password"}</h3>
+        {user.provider !== "local" ? (
+          <p className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-white/45">
+            {zh
+              ? `你通过 ${PROVIDER_LABEL[user.provider]} 登录，密码由该账号平台管理。`
+              : `You signed in with ${PROVIDER_LABEL[user.provider]} — your password is managed there.`}
+          </p>
+        ) : (
+          <>
+            <div className="mt-4 grid gap-3.5">
+              <div>
+                <label className={labelCls}>{zh ? "当前密码" : "Current password"}</label>
+                <input type="password" className={inputCls} value={p1} onChange={(e) => setP1(e.target.value)} autoComplete="current-password" />
+              </div>
+              <div>
+                <label className={labelCls}>{zh ? "新密码" : "New password"}</label>
+                <input type="password" className={inputCls} value={p2} onChange={(e) => setP2(e.target.value)} autoComplete="new-password" placeholder={zh ? "至少 8 位" : "8+ characters"} />
+              </div>
+              <div>
+                <label className={labelCls}>{zh ? "确认新密码" : "Confirm new password"}</label>
+                <input type="password" className={inputCls} value={p3} onChange={(e) => setP3(e.target.value)} autoComplete="new-password" />
+              </div>
+            </div>
+            {errPass && <p className="mt-3 text-[12.5px] text-rose-300">{errPass}</p>}
+            <button
+              onClick={savePassword}
+              disabled={busyPass}
+              className="grad-btn mt-4 w-full !py-2.5 text-sm font-bold disabled:opacity-60"
+            >
+              {busyPass ? (zh ? "保存中…" : "Saving…") : zh ? "更新密码" : "Update password"}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

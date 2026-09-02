@@ -94,6 +94,10 @@ Signed-in members get a dashboard at **`/me`** (linked from the header avatar me
   admin review queue (`/admin/submissions`) and go public once approved
 - **My uploads + share** — per-item preview modal, detail link, and share tools
   (copy link / X intent / Markdown snippet); pending submissions can be withdrawn
+- **Public profile `/u/<id>`** — shareable page with member stats and all their live
+  uploads (pending items stay hidden); item detail pages link the author name to it
+- **Settings** — rename (reflected everywhere) and password change for email accounts
+  (OAuth accounts are told their password lives at the provider)
 
 API: `POST /api/me/upload` · `GET /api/me/overview` · `DELETE /api/me/items/<id>`
 (all require the user session; members can only touch their own pending items).

@@ -1,7 +1,7 @@
 import "server-only";
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
-import { getUserById } from "./db";
+import { getUserById, setUserPassword } from "./db";
 import { User } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -24,6 +24,18 @@ export function verifyPassword(password: string, stored: string): boolean {
   const calc = crypto.scryptSync(password, salt, 32, SCRYPT_OPTS);
   const ref = Buffer.from(hash, "hex");
   return calc.length === ref.length && crypto.timingSafeEqual(calc, ref);
+}
+
+/** Change a local account's password after verifying the current one. */
+export async function setUserPasswordGuard(
+  uid: string,
+  current: string,
+  next: string
+): Promise<boolean> {
+  const user = getUserById(uid);
+  if (!user || user.provider !== "local" || !user.passwordHash) return false;
+  if (!verifyPassword(current, user.passwordHash)) return false;
+  return setUserPassword(uid, hashPassword(next));
 }
 
 // ---------------------------------------------------------------------------

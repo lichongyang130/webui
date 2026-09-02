@@ -112,7 +112,18 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ slu
               <dl className="mt-5 space-y-2.5 border-t border-white/[0.07] pt-5 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-white/40">{t(lang, "curatedBy")}</dt>
-                  <dd className="font-medium">{item.author}</dd>
+                  <dd className="font-medium">
+                    {item.ownerId ? (
+                      <Link
+                        href={`/u/${item.ownerId}`}
+                        className="text-fuchsia-300 transition hover:text-fuchsia-200"
+                      >
+                        {item.author}
+                      </Link>
+                    ) : (
+                      item.author
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-white/40">{t(lang, "added")}</dt>

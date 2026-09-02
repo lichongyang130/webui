@@ -496,6 +496,25 @@ export function countUsers(): number {
   return load().users.length;
 }
 
+export function updateUserName(id: string, name: string): User | undefined {
+  const db = load();
+  const u = db.users.find((x) => x.id === id);
+  if (!u) return undefined;
+  u.name = name.trim();
+  save(db);
+  return u;
+}
+
+/** Sets a new scrypt hash; only for local (email+password) accounts. */
+export function setUserPassword(id: string, passwordHash: string): boolean {
+  const db = load();
+  const u = db.users.find((x) => x.id === id && x.provider === "local");
+  if (!u) return false;
+  u.passwordHash = passwordHash;
+  save(db);
+  return true;
+}
+
 // ------------------------------------------------------------- member uploads
 export function getItemsByOwner(ownerId: string): Item[] {
   return structuredClone(
