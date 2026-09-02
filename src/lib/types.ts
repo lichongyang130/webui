@@ -39,6 +39,8 @@ export interface Item {
   submittedBy?: string;
   submittedAt?: string;
   sourceUrl?: string;
+  /** member account that uploaded this asset (auth user id) */
+  ownerId?: string;
   createdAt: string;
   updatedAt: string;
 }

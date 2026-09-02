@@ -87,6 +87,7 @@ export interface PublicUser {
   email: string;
   provider: User["provider"];
   avatar?: string;
+  createdAt: string;
 }
 
 export function toPublicUser(u: User): PublicUser {
@@ -96,6 +97,7 @@ export function toPublicUser(u: User): PublicUser {
     email: u.email,
     provider: u.provider,
     avatar: u.avatar,
+    createdAt: u.createdAt,
   };
 }
 

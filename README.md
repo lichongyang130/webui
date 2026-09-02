@@ -84,6 +84,20 @@ the code for a profile; accounts are upserted by provider id into `data/vault.js
 API: `POST /api/auth/register|login|logout` · `GET /api/auth/me` ·
 `GET /api/auth/oauth/<google|github>` (+`/callback`).
 
+## Member center (`/me`)
+
+Signed-in members get a dashboard at **`/me`** (linked from the header avatar menu):
+
+- **Profile card** — avatar, provider badge, joined date, upload stats (total / in review / live)
+- **Upload content** — title, category, tags, tech picks, AI prompt and the self-contained
+  preview HTML with a **live sandboxed preview** as you type; submissions enter the same
+  admin review queue (`/admin/submissions`) and go public once approved
+- **My uploads + share** — per-item preview modal, detail link, and share tools
+  (copy link / X intent / Markdown snippet); pending submissions can be withdrawn
+
+API: `POST /api/me/upload` · `GET /api/me/overview` · `DELETE /api/me/items/<id>`
+(all require the user session; members can only touch their own pending items).
+
 ## Project layout
 
 ```

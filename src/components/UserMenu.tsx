@@ -92,6 +92,13 @@ export default function UserMenu({ zh }: { zh: boolean }) {
           </div>
           <div className="border-t border-white/[0.07] pt-1.5">
             <Link
+              href="/me"
+              onClick={() => setOpen(false)}
+              className="block rounded-lg px-3 py-2 text-sm text-cyan-200/90 transition hover:bg-cyan-400/10 hover:text-cyan-100"
+            >
+              ✦ {zh ? "会员中心" : "Member center"}
+            </Link>
+            <Link
               href="/favorites"
               onClick={() => setOpen(false)}
               className="block rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/5 hover:text-white"

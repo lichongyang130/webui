@@ -325,6 +325,8 @@ export interface SubmissionInput {
   tech: Item["tech"];
   html: string;
   prompt: string;
+  /** auth user id when a signed-in member uploads */
+  ownerId?: string;
 }
 
 export function createSubmission(input: SubmissionInput): Item {
@@ -354,6 +356,7 @@ export function createSubmission(input: SubmissionInput): Item {
     status: "pending",
     submittedBy: input.submitterEmail,
     submittedAt: now,
+    ownerId: input.ownerId,
     createdAt: now,
     updatedAt: now,
   };
@@ -491,4 +494,25 @@ export function touchUserLogin(id: string) {
 
 export function countUsers(): number {
   return load().users.length;
+}
+
+// ------------------------------------------------------------- member uploads
+export function getItemsByOwner(ownerId: string): Item[] {
+  return structuredClone(
+    load()
+      .items.filter((i) => i.ownerId === ownerId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  );
+}
+
+/** Members may delete their own submission while it is still pending review. */
+export function deleteOwnedItem(ownerId: string, id: string): boolean {
+  const db = load();
+  const idx = db.items.findIndex((i) => i.id === id && i.ownerId === ownerId);
+  if (idx === -1) return false;
+  if (db.items[idx].status !== "pending") return false;
+  const [removed] = db.items.splice(idx, 1);
+  save(db);
+  logEvent("delete", `Member removed pending submission "${removed.title}"`);
+  return true;
 }
