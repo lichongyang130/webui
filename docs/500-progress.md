@@ -288,3 +288,12 @@ Web3 DeFi 深色看板落地页 (#311) · 打字代码窗口多 Tab (#197) · �
 | ✅ #121 | Prompt 完整度评分：5 维启发式（布局/配色/动效/响应式/技术约束）→ 环形分数 + 维度芯片 + 补全建议，注入详情页 Prompt Tab |
 
 验证：文档载入 60 卡上限 ✓ / 预览路由 200 ✓ / 评分注入（例:60→basic) ✓ / 收藏 PATCH 合并、401 越权拦截、DB 落盘 ✓ / tsc + build 零错误 ✓
+
+## Wave P0-2 — 服务端筛选分页（v2 #59/#361）
+
+| 项 | 内容 |
+|---|---|
+| ✅ 新路由 | `GET /api/items?category&q&tag&tech&sort&offset&limit`（限 96/页，参数校验，返回轻量卡片数据 + total + hasMore）|
+| ✅ VaultBrowser 重构 | 全量客户端过滤 → 服务端分页流；首屏仅 48 卡，搜索 300ms 防抖重取，标签/技术/排序全部走 API；URL 筛选状态保持可分享；staleness token 丢弃过期响应 |
+| ✅ 数据层 | `getTagCounts(category)` 分类作用域标签聚合；分类/探索页只下传首屏 + 标签计数 |
+| ✅ 效果 | `/explore` 文档 929KB→551KB、DOM 卡片 518→48，`>512KB` Suspense 警告消除；`/api/items` 全矩阵 200/分页/筛选/400 校验通过 |

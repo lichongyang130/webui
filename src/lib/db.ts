@@ -260,10 +260,26 @@ export function getDailyStats(days = 21): { date: string; views: number; copies:
   return out;
 }
 
-export function getPopularTags(limit = 12): { tag: string; count: number }[] {
-  const counts = new Map<string, number>();
+export function getPopularTags(limit = 12): { tag: string; count: number }[] {  const counts = new Map<string, number>();
   load()
     .items.filter((i) => i.published && i.status !== "pending")
+    .forEach((i) => i.tags.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
+/** Tag counts scoped to a category (used by category browse pages). */
+export function getTagCounts(category?: string, limit = 14): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  load()
+    .items.filter(
+      (i) =>
+        i.published &&
+        i.status !== "pending" &&
+        (!category || i.category === category)
+    )
     .forEach((i) => i.tags.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
